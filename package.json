@@ -1,0 +1,15 @@
+{
+  "name": "myanimelist-migration",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Migrate watch list from AnimeFLV to MyAnimeList",
+  "main": "migrate.js",
+  "scripts": {
+    "start": "node migrate.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0",
+    "dotenv": "^17.4.2"
+  }
+}
