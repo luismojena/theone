@@ -92,7 +92,7 @@ export class JKAnimePlatform extends IAnimePlatform {
           for (const rawItem of json.data) {
             let info = typeof rawItem.info === 'string' ? JSON.parse(rawItem.info) : (rawItem.info || {});
             const rawUrl = info.url || rawItem.url || '';
-            const slug = rawUrl.replace(/^https?://jkanime.net//, '').replace(///g, '');
+            const slug = rawUrl.replace(/^https?:\/\/jkanime\.net\//, '').replace(/\//g, '');
             if (slug) {
               items.push({
                 title: info.title || rawItem.title || slug,

@@ -1,4 +1,4 @@
-import { completeMALWatching } from './src/legacy/mal.js';
+import { completeMALWatching } from './src/cli/malCli.js';
 
 completeMALWatching().catch(err => {
   console.error('An unexpected error occurred:', err);

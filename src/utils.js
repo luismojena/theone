@@ -105,3 +105,22 @@ export function normalizeJKAnimeStatus(statusStr) {
   return 'Watching';
 }
 
+
+/**
+ * Generic fetch with retry logic
+ */
+export async function fetchWithRetry(url, options = {}, maxRetries = 3, platformName = 'System') {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const res = await fetch(url, options);
+      if (res.ok) return res;
+      console.warn(`[${platformName}] Attempt ${attempt}/${maxRetries} failed with status ${res.status} for ${url}`);
+    } catch (err) {
+      console.warn(`[${platformName}] Attempt ${attempt}/${maxRetries} network error: ${err.message}`);
+    }
+    if (attempt < maxRetries) await sleep(2000 * attempt);
+  }
+  console.error(`\nWe have tried ${maxRetries} times to reach ${url}.`);
+  console.error(`The website might be down. Please check visiting here: ${url}\n`);
+  throw new Error('WEBSITE_DOWN');
+}

@@ -1,42 +1,34 @@
 import "dotenv/config";
 import { Command } from "commander";
 
-// Legacy function imports (until fully migrated to services)
-import { runResolve, runReview, runExport } from "./src/legacy/mal.js";
-import { runSyncJKAnime, runFetchJKAnimeList } from "./src/legacy/jkanime.js";
+
+import { runResolve, runReview, runExport } from "./src/cli/malCli.js";
+import { runSyncJKAnime, runFetchJKAnimeList } from "./src/cli/jkanimeCli.js";
 import { runBackup } from "./src/services/BackupService.js";
-import { loadMappings } from "./src/legacy/mapping.js";
-import { completeMALWatching } from "./src/legacy/mal.js"; // From old complete_watching.js wrapper
+import { FileMappingRepository } from './src/repositories/FileMappingRepository.js';
+import { completeMALWatching } from "./src/cli/malCli.js"; // From old complete_watching.js wrapper
 
 export function buildCLI() {
   const program = new Command();
   program
-    .name("theone")
-    .description("MyAnimeList Migration Utility")
-    .version("2.0.0");
+    .name('theone')
+    .description('MyAnimeList Migration Utility (Modular) - DDD Edition')
+    .version('2.0.0');
 
   // --- System / DB Commands ---
-  const dbCmd = program
-    .command("db")
-    .description("Database and system operations");
-  dbCmd
-    .command("inspect")
-    .description("Inspect the persistent platform-to-MAL mappings store")
+  const dbCmd = program.command('db').description('Database and system operations');
+  dbCmd.command('inspect')
+    .description('Inspect the persistent platform-to-MAL mappings store')
     .action(() => {
-      const m = loadMappings();
+      const repo = new FileMappingRepository('./migrations/mappings.json');
+      const m = repo.loadMappings();
       const count = Object.keys(m).length;
-      console.log(
-        `\nPersistent Mapping Store (${count} total entries mapped):`,
-      );
+      console.log(`\nPersistent Mapping Store (${count} total entries mapped):`);
       console.log(`- File location: migrations/mappings.json`);
       console.log(`- Sample entries:`);
-      Object.entries(m)
-        .slice(0, 5)
-        .forEach(([key, val]) => {
-          console.log(
-            `  * ${key} => MAL ID ${val.mal_id} ("${val.mal_title}")`,
-          );
-        });
+      Object.entries(m).slice(0, 5).forEach(([key, val]) => {
+        console.log(`  * ${key} => MAL ID ${val.mal_id} ("${val.mal_title}")`);
+      });
     });
 
   dbCmd
@@ -101,7 +93,7 @@ export function buildCLI() {
     .option("--autoskip", "Skip low-confidence matches automatically")
     .option("--force", "Force sync even if locally cached status matches")
     .action(async (options) => {
-      // In the legacy code, autoskip is read from process.argv
+      
       if (options.autoskip && !process.argv.includes("--autoskip")) {
         process.argv.push("--autoskip");
       }
