@@ -6,13 +6,27 @@ import { sleep } from '../utils.js';
  * that throws errors if methods are not implemented.
  */
 export class IAnimePlatform {
+  constructor() {
+    this.defaultHeaders = {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, Gecko) Chrome/120.0.0.0 Safari/537.36',
+    };
+  }
+
   /**
    * Helper method shared across all platforms to handle network failures, 502s, and timeouts gracefully.
    */
   async _fetchWithRetry(url, options = {}, maxRetries = 3) {
+    const finalOptions = {
+      ...options,
+      headers: {
+        ...this.defaultHeaders,
+        ...(options.headers || {})
+      }
+    };
+
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
-        const res = await fetch(url, options);
+        const res = await fetch(url, finalOptions);
 
         if (res.ok) {
           return res;

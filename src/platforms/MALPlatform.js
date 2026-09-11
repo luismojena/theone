@@ -42,7 +42,6 @@ export class MALPlatform extends IAnimePlatform {
       
       const res = await this._fetchWithRetry(url, {
         headers: {
-          'User-Agent': 'Mozilla/5.0',
           'Accept': 'application/json'
         }
       });
@@ -87,7 +86,6 @@ export class MALPlatform extends IAnimePlatform {
     
     const res = await this._fetchWithRetry(url, {
       headers: {
-        'User-Agent': 'Mozilla/5.0',
         'Accept': 'text/html'
       }
     });

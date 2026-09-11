@@ -26,7 +26,6 @@ export class JKAnimePlatform extends IAnimePlatform {
     const res = await this._fetchWithRetry('https://login.jkanime.net/api/login', {
       method: 'POST',
       headers: {
-        'User-Agent': 'Mozilla/5.0',
         'Content-Type': 'application/x-www-form-urlencoded',
         'Referer': 'https://jkanime.net/'
       },
@@ -38,6 +37,7 @@ export class JKAnimePlatform extends IAnimePlatform {
 
     const cookieArray = res.headers.getSetCookie();
     this.cookies = cookieArray.map(c => c.split(';')[0]).join('; ');
+    this.defaultHeaders['Cookie'] = this.cookies; // Automatically append to all future requests
     this.username = credentials.username;
   }
 
@@ -78,8 +78,6 @@ export class JKAnimePlatform extends IAnimePlatform {
         const res = await this._fetchWithRetry(url, {
           method: 'POST',
           headers: {
-            'User-Agent': 'Mozilla/5.0',
-            'Cookie': this.cookies,
             'Content-Type': 'application/x-www-form-urlencoded'
           },
           body: new URLSearchParams({ user: this.username }).toString()
@@ -110,7 +108,7 @@ export class JKAnimePlatform extends IAnimePlatform {
   }
 
   async _fetchWatchlistHTML() {
-    return []; // We fallback to empty if API fails for brevity in porting, as API works fine.
+    return []; // Fallback stub
   }
 
   async updateEntryStatus(entry) {
@@ -118,7 +116,7 @@ export class JKAnimePlatform extends IAnimePlatform {
     
     // Fetch details
     const href = `https://jkanime.net/${entry.platformId}/`;
-    const res = await this._fetchWithRetry(href, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+    const res = await this._fetchWithRetry(href);
     const html = await res.text();
     const $ = cheerio.load(html);
     
@@ -145,8 +143,6 @@ export class JKAnimePlatform extends IAnimePlatform {
     const updateRes = await this._fetchWithRetry('https://login.jkanime.net/api/guardar_anime', {
       method: 'POST',
       headers: {
-        'User-Agent': 'Mozilla/5.0',
-        'Cookie': this.cookies,
         'Content-Type': 'application/x-www-form-urlencoded'
       },
       body: payload.toString()
@@ -158,7 +154,7 @@ export class JKAnimePlatform extends IAnimePlatform {
 
   async searchAnime(query) {
     const url = `https://jkanime.net/buscar?q=${encodeURIComponent(query)}`;
-    const res = await this._fetchWithRetry(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+    const res = await this._fetchWithRetry(url);
     const html = await res.text();
     const $ = cheerio.load(html);
     const results = [];
