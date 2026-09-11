@@ -25,19 +25,20 @@ export class AnimeAV1Platform extends IAnimePlatform {
         const baseUrl = `https://animeav1.com/cuenta/listas`;
         const res = await this.request(baseUrl);
         const html = await res.text();
-        // SvelteKit embeds state like: {userId:4990,mediaId:882,status:2,episode:12,...,media:{...,slug:"shiunji-ke...",title:"Shiunji-ke..."}}
-        // We can extract these object literals using regex
-        const objectRegex = /\{userId:\d+,mediaId:\d+,status:(\d+),episode:(\d+).*?slug:"([^"]+)",status:\d+,title:"([^"]+)"/g;
+        // We extract mediaId, status, episode, slug, title
+        const objectRegex = /\{userId:\d+,mediaId:(\d+),status:(\d+),episode:(\d+).*?slug:"([^"]+)",status:\d+,title:"([^"]+)"/g;
         let match;
         while ((match = objectRegex.exec(html)) !== null) {
-            const statusNum = parseInt(match[1], 10);
-            const epsWatched = parseInt(match[2], 10);
-            const slug = match[3];
-            const title = match[4];
+            const mediaId = match[1];
+            const statusNum = parseInt(match[2], 10);
+            const epsWatched = parseInt(match[3], 10);
+            const slug = match[4];
+            const title = match[5];
             // Escape unicode or hex escapes if any
             const cleanTitle = title.replace(/\\\\u[\dA-F]{4}/gi, (m) => String.fromCharCode(parseInt(m.replace(/\\\\u/g, ''), 16)));
             const status = this._mapStatusNumber(statusNum);
-            entries.push(new WatchlistEntry(this.platformName, slug, cleanTitle, status, epsWatched));
+            entries.push(new WatchlistEntry(this.platformName, mediaId, // We use mediaId as the platformId so we can sync back easily
+            cleanTitle, status, epsWatched));
         }
         return entries;
     }
@@ -51,23 +52,37 @@ export class AnimeAV1Platform extends IAnimePlatform {
         };
         return map[statusNum] || WatchStatus.WATCHING;
     }
+    _mapStatusToNumber(statusStr) {
+        switch (statusStr) {
+            case WatchStatus.WATCHING: return 0;
+            case WatchStatus.PLAN_TO_WATCH: return 1;
+            case WatchStatus.COMPLETED: return 2;
+            case WatchStatus.ON_HOLD: return 3;
+            case WatchStatus.DROPPED: return 4;
+            default: return 0;
+        }
+    }
     async updateEntryStatus(entry) {
-        if (!this.token)
+        if (!this.defaultHeaders['Cookie'])
             throw new Error("Must authenticate first");
-        const url = `https://animeav1.com/api/update/${encodeURIComponent(entry.platformId)}`;
+        const url = `https://animeav1.com/api/user/library`;
+        // The API payload seen from browser: {"mediaId":4382,"episode":11}
+        // We can also try injecting "status" into the JSON payload in case the backend supports it.
+        const payload = {
+            mediaId: parseInt(entry.platformId, 10),
+            episode: entry.episodesWatched,
+            status: this._mapStatusToNumber(entry.status)
+        };
         const res = await this.request(url, {
             method: 'POST',
-            body: JSON.stringify({
-                status: entry.status,
-                episodes: entry.episodesWatched
-            }),
+            body: JSON.stringify(payload),
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${this.token}`
+                'Origin': 'https://animeav1.com'
             }
         });
         if (!res.ok) {
-            throw new Error(`Failed to update ${entry.title} on AnimeAV1`);
+            throw new Error(`Failed to update ${entry.title} on AnimeAV1. HTTP ${res.status}`);
         }
     }
     async searchAnime(query) {

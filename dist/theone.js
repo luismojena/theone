@@ -102,47 +102,17 @@ export function buildCLI() {
     });
     // --- AnimeAV1 Commands ---
     const animeav1Cmd = program.command('animeav1').description('AnimeAV1 operations');
-    animeav1Cmd.command('scrape')
-        .description('Scrape AnimeAV1 profile pages to scraped.json')
+    animeav1Cmd.command('fetch')
+        .description('Fetch tracked anime & watch statuses from AnimeAV1 user profile into mappings.json')
         .action(async () => {
-        const { AnimeAV1Platform } = await import('./src/platforms/AnimeAV1Platform.js');
-        const platform = new AnimeAV1Platform();
-        const session = process.env.ANIMEAV1_SESSION;
-        if (!session)
-            throw new Error('ANIMEAV1_SESSION environment variable is required');
-        await platform.authenticate({ session });
-        const entries = await platform.fetchWatchlist();
-        if (entries.length > 0) {
-            const fs = await import('fs');
-            fs.writeFileSync('./migrations/scraped.json', JSON.stringify(entries, null, 2));
-            console.log(`Scraping complete. Saved ${entries.length} items to scraped.json.`);
-        }
-        else {
-            console.log('No entries found on AnimeAV1.');
-        }
+        const { runFetchAnimeAV1List } = await import('./src/cli/animeav1Cli.js');
+        await runFetchAnimeAV1List();
     });
     animeav1Cmd.command('sync')
-        .description('Sync watching status to AnimeAV1')
+        .description('Sync watching status of matched resolved list to animeav1.com')
         .action(async () => {
-        const { AnimeAV1Platform } = await import('./src/platforms/AnimeAV1Platform.js');
-        const { WatchlistSyncService } = await import('./src/services/WatchlistSyncService.js');
-        const { FileMappingRepository } = await import('./src/repositories/FileMappingRepository.js');
-        const session = process.env.ANIMEAV1_SESSION;
-        if (!session)
-            throw new Error('ANIMEAV1_SESSION environment variable is required');
-        const platform = new AnimeAV1Platform();
-        await platform.authenticate({ session });
-        const repo = new FileMappingRepository('./migrations/mappings.json');
-        const syncService = new WatchlistSyncService(repo);
-        console.log('Fetching remote AnimeAV1 watchlist...');
-        const entries = await platform.fetchWatchlist();
-        const diff = syncService.computeIncrementalDiff(entries);
-        console.log(`\n--- AnimeAV1 Sync ---`);
-        console.log(`New Entries: ${diff.newEntries.length}`);
-        console.log(`Modified Entries: ${diff.modifiedEntries.length}`);
-        console.log(`Unchanged Entries: ${diff.unchangedEntries.length}`);
-        // We don't execute updateEntryStatus yet since we don't know the exact API payload, 
-        // but the data fetch and diff engine works perfectly.
+        const { runSyncAnimeAV1 } = await import('./src/cli/animeav1Cli.js');
+        await runSyncAnimeAV1();
     });
     return program;
 }
