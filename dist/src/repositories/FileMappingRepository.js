@@ -34,7 +34,7 @@ export class FileMappingRepository {
      */
     getMapping(platform, platformId) {
         const mappings = this.loadMappings();
-        const key = `${platform}_${platformId}`;
+        const key = `${platform}:${platformId}`;
         return mappings[key];
     }
     /**
