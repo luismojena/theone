@@ -4,16 +4,17 @@ import * as cheerio from "cheerio";
 import { sleep } from "../utils.js";
 
 export class AnimeFLVPlatform extends IAnimePlatform {
+  profileId: string | null = null;
+
   constructor() {
     super();
-    this.profileId = null;
   }
 
   get platformName() {
     return "animeflv";
   }
 
-  async authenticate(credentials) {
+  async authenticate(credentials: any) {
     if (!credentials.profileId) {
       throw new Error('AnimeFLV requires a profileId (e.g. "PROW")');
     }
@@ -25,7 +26,7 @@ export class AnimeFLVPlatform extends IAnimePlatform {
       throw new Error("Must authenticate with profileId first");
 
     let page = 1;
-    const entries = [];
+    const entries: WatchlistEntry[] = [];
     const baseUrl = `https://www4.animeflv.net/perfil/${encodeURIComponent(this.profileId)}/siguiendo`;
 
     while (true) {
@@ -34,9 +35,11 @@ export class AnimeFLVPlatform extends IAnimePlatform {
 
       let html;
       try {
-        const res = await this._fetchWithRetry(url, {}, 3);
+        const res = await this.request(url, {});
+        if (!res.ok) break;
+
         html = await res.text();
-      } catch (err) {
+      } catch (err: any) {
         if (err.message === "WEBSITE_DOWN") {
           break; // Stop scraping, return what we have (if any) or bubble up.
         }
@@ -76,11 +79,11 @@ export class AnimeFLVPlatform extends IAnimePlatform {
     return entries;
   }
 
-  async updateEntryStatus(entry) {
+  async updateEntryStatus(entry: any) {
     throw new Error("AnimeFLV does not support automated status updates.");
   }
 
-  async searchAnime(query) {
+  async searchAnime(query: string): Promise<any[]> {
     throw new Error("Search not implemented for AnimeFLV.");
   }
 }

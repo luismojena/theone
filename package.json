@@ -5,12 +5,18 @@
   "description": "Migrate watch list from AnimeFLV to MyAnimeList",
   "main": "theone.js",
   "scripts": {
-    "start": "node theone.js",
-    "test": "node --test"
+    "start": "npx tsx theone.ts",
+    "test": "node --import tsx --test tests/**/*.ts",
+    "build": "tsc"
   },
   "dependencies": {
     "cheerio": "^1.0.0",
     "commander": "^15.0.0",
     "dotenv": "^17.4.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.2",
+    "tsx": "^4.23.13",
+    "typescript": "^7.0.2"
   }
 }

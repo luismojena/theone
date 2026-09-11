@@ -3,17 +3,18 @@ import { WatchlistEntry, WatchStatus } from '../core/domain.js';
 import * as cheerio from 'cheerio';
 
 export class JKAnimePlatform extends IAnimePlatform {
+  cookies: string | null = null;
+  username: string | null = null;
+
   constructor() {
     super();
-    this.cookies = null;
-    this.username = null;
   }
 
   get platformName() {
     return 'jkanime';
   }
 
-  async authenticate(credentials) {
+  async authenticate(credentials: any) {
     if (!credentials.username || !credentials.password) {
       throw new Error('JKAnime requires username and password');
     }
@@ -23,7 +24,7 @@ export class JKAnimePlatform extends IAnimePlatform {
       password: credentials.password
     });
 
-    const res = await this._fetchWithRetry('https://login.jkanime.net/api/login', {
+    const res = await this.request('https://login.jkanime.net/api/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -75,12 +76,12 @@ export class JKAnimePlatform extends IAnimePlatform {
       let lastPage = 1;
       do {
         const url = `https://login.jkanime.net/api/animes?tag=${tagId}&orden=none&filtro=fecha&p=${page}`;
-        const res = await this._fetchWithRetry(url, {
+        const res = await this.request(url, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
           },
-          body: new URLSearchParams({ user: this.username }).toString()
+          body: new URLSearchParams({ user: this.username as string }).toString()
         });
 
         const json = await res.json();
@@ -111,12 +112,12 @@ export class JKAnimePlatform extends IAnimePlatform {
     return []; // Fallback stub
   }
 
-  async updateEntryStatus(entry) {
+  async updateEntryStatus(entry: any) {
     if (!this.cookies) throw new Error('Must authenticate before updating status');
     
     // Fetch details
     const href = `https://jkanime.net/${entry.platformId}/`;
-    const res = await this._fetchWithRetry(href);
+    const res = await this.request(href);
     const html = await res.text();
     const $ = cheerio.load(html);
     
@@ -140,7 +141,7 @@ export class JKAnimePlatform extends IAnimePlatform {
       tag: tagId.toString()
     });
 
-    const updateRes = await this._fetchWithRetry('https://login.jkanime.net/api/guardar_anime', {
+    const updateRes = await this.request('https://login.jkanime.net/api/guardar_anime', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded'
@@ -152,12 +153,12 @@ export class JKAnimePlatform extends IAnimePlatform {
     if (data === 'token') throw new Error('Session expired');
   }
 
-  async searchAnime(query) {
+  async searchAnime(query: string) {
     const url = `https://jkanime.net/buscar?q=${encodeURIComponent(query)}`;
-    const res = await this._fetchWithRetry(url);
+    const res = await this.request(url);
     const html = await res.text();
     const $ = cheerio.load(html);
-    const results = [];
+    const results: any[] = [];
 
     $('.anime__item').each((idx, el) => {
       const a = $(el).find('a').first();
@@ -170,8 +171,8 @@ export class JKAnimePlatform extends IAnimePlatform {
     return results;
   }
 
-  _mapStatus(malStatusString) {
-    const map = {
+  _mapStatus(malStatusString: string) {
+    const map: Record<string, string> = {
       'Watching': WatchStatus.WATCHING,
       'Completed': WatchStatus.COMPLETED,
       'On-Hold': WatchStatus.ON_HOLD,

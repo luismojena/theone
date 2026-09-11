@@ -4,17 +4,18 @@ import { sleep } from '../utils.js';
 import * as cheerio from 'cheerio';
 
 export class MALPlatform extends IAnimePlatform {
+  sessionCookie: string | null = null;
+  username: string | null = null;
+
   constructor() {
     super();
-    this.sessionCookie = null;
-    this.username = null;
   }
 
   get platformName() {
     return 'mal';
   }
 
-  async authenticate(credentials) {
+  async authenticate(credentials: any) {
     if (credentials.username) {
       this.username = credentials.username;
     }
@@ -29,7 +30,7 @@ export class MALPlatform extends IAnimePlatform {
     let offset = 0;
     let hasMore = true;
 
-    const statusNumMap = {
+    const statusNumMap: Record<number, string> = {
       1: WatchStatus.WATCHING,
       2: WatchStatus.COMPLETED,
       3: WatchStatus.ON_HOLD,
@@ -40,7 +41,7 @@ export class MALPlatform extends IAnimePlatform {
     while (hasMore) {
       const url = `https://myanimelist.net/animelist/${encodeURIComponent(this.username)}/load.json?offset=${offset}&status=7`;
       
-      const res = await this._fetchWithRetry(url, {
+      const res = await this.request(url, {
         headers: {
           'Accept': 'application/json'
         }
@@ -75,16 +76,16 @@ export class MALPlatform extends IAnimePlatform {
     return entries;
   }
 
-  async updateEntryStatus(entry) {
+  async updateEntryStatus(entry: any) {
     // MAL currently uses XML export rather than direct API updates in this tool.
     // However, if we implemented official MAL OAuth, we'd do a PUT/PATCH here.
     throw new Error('MAL API update not directly implemented yet. Use XML export.');
   }
 
-  async searchAnime(query) {
+  async searchAnime(query: string) {
     const url = `https://myanimelist.net/anime.php?q=${encodeURIComponent(query)}&cat=anime`;
     
-    const res = await this._fetchWithRetry(url, {
+    const res = await this.request(url, {
       headers: {
         'Accept': 'text/html'
       }
@@ -92,7 +93,7 @@ export class MALPlatform extends IAnimePlatform {
 
     const html = await res.text();
     const $ = cheerio.load(html);
-    const results = [];
+    const results: any[] = [];
 
     $('table tr').each((idx, el) => {
       const titleLink = $(el).find('div.title a.hoverinfo_trigger');
@@ -101,10 +102,10 @@ export class MALPlatform extends IAnimePlatform {
       const href = titleLink.attr('href');
       if (!href) return;
       const malIdMatch = href.match(/\/anime\/(\d+)/);
-      if (!malIdMatch) return;
-      const mal_id = parseInt(malIdMatch[1], 10);
-      
-      results.push({ mal_id, title, url: href });
+      if (malIdMatch) {
+        const mal_id = parseInt(malIdMatch[1]!, 10);
+        results.push({ mal_id, title, url: href });
+      }
     });
 
     return results;

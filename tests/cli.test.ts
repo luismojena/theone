@@ -42,9 +42,9 @@ test('CLI parses jkanime sync options correctly', () => {
   // We can't easily test action execution without mocking all of the legacy imports,
   // but we can test that the commands are configured to accept the options.
   const jkanimeCmd = cli.commands.find(c => c.name() === 'jkanime');
-  const syncCmd = jkanimeCmd.commands.find(c => c.name() === 'sync');
+  const syncCmd = jkanimeCmd!.commands.find(c => c.name() === 'sync');
   
-  const options = syncCmd.options.map(o => o.long);
+  const options = syncCmd!.options.map(o => o.long);
   assert.ok(options.includes('--autoskip'));
   assert.ok(options.includes('--force'));
 });

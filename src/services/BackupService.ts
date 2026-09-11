@@ -17,7 +17,7 @@ export function getBackupTimestamp() {
   return now.toISOString().replace(/[:.]/g, '-');
 }
 
-export function createBackupDirectory(timestamp = null) {
+export function createBackupDirectory(timestamp: string | null = null) {
   ensureDataDir();
   if (!fs.existsSync(BACKUPS_DIR)) {
     fs.mkdirSync(BACKUPS_DIR, { recursive: true });

@@ -8,76 +8,51 @@ export class FileMappingRepository {
   /**
    * @param {string} filePath - Absolute path to the JSON mapping database.
    */
-  constructor(filePath) {
-    this.filePath = filePath;
-    this.ensureDirectory();
-  }
+  constructor(public filePath: string) {}
 
-  ensureDirectory() {
+  loadMappings(): Record<string, any> {
     const dir = path.dirname(this.filePath);
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
-  }
-
-  /**
-   * @returns {Object} All mappings dictionary
-   */
-  loadMappings() {
+    
     if (fs.existsSync(this.filePath)) {
       try {
         return JSON.parse(fs.readFileSync(this.filePath, 'utf8'));
       } catch (err) {
-        console.error('Error reading mappings database:', err);
+        console.warn(`Could not parse ${this.filePath}, starting fresh.`, err);
       }
     }
     return {};
   }
 
-  /**
-   * @param {Object} mappings 
-   */
-  saveMappings(mappings) {
+  saveMappings(mappings: Record<string, any>) {
     fs.writeFileSync(this.filePath, JSON.stringify(mappings, null, 2), 'utf8');
   }
 
   /**
-   * Retrieves a mapping by its composite platform and slug key.
-   * @param {string} platform 
-   * @param {string} platformId 
-   * @returns {Object|null}
+   * Get an existing mapping by platform slug and ID
    */
-  getMapping(platform, platformId) {
+  getMapping(platform: string, platformId: string) {
     const mappings = this.loadMappings();
     const key = `${platform}:${platformId}`;
-    return mappings[key] || null;
+    return mappings[key];
   }
 
   /**
-   * Retrieves a mapping by canonical MyAnimeList ID.
-   * @param {number} malId 
-   * @returns {Object|null}
+   * Lookup mapping backwards by MAL ID
    */
-  getMappingByMalId(malId) {
+  getMappingByMalId(malId: number | string) {
     const mappings = this.loadMappings();
-    for (const key in mappings) {
-      if (mappings[key].mal_id === Number(malId)) {
-        return mappings[key];
+    for (const val of Object.values(mappings)) {
+      if (val.mal_id && Number(val.mal_id) === Number(malId)) {
+        return val;
       }
     }
     return null;
   }
 
-  /**
-   * Saves or updates a mapping entry.
-   * @param {string} platform 
-   * @param {string} platformId 
-   * @param {number} malId 
-   * @param {string} malTitle 
-   * @param {Object} extraData - Additional platform-specific status details
-   * @returns {Object} The saved mapping
-   */
-  setMapping(platform, platformId, malId, malTitle, extraData = {}) {
+  setMapping(platform: string, platformId: string, malId: number | string, malTitle: string, extraData: any = {}) {
     const mappings = this.loadMappings();
     const key = `${platform}:${platformId}`;
     
