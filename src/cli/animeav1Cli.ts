@@ -62,35 +62,76 @@ export async function runSyncAnimeAV1() {
   }
 
   const repo = new FileMappingRepository('./migrations/mappings.json');
-  const syncService = new WatchlistSyncService(repo);
+  const allMappings = repo.loadMappings();
 
   console.log('Fetching remote AnimeAV1 watchlist...');
-  const entries = await platform.fetchWatchlist();
-  
-  const diff = syncService.computeIncrementalDiff(entries);
+  const remoteEntries = await platform.fetchWatchlist();
+  const remoteMap = new Map(remoteEntries.map(e => [e.platformId.toString(), e]));
+
+  const toUpdate = [];
+
+  for (const key of Object.keys(allMappings)) {
+    const mapping = allMappings[key];
+    if (mapping.platform === 'animeav1') {
+      const remote = remoteMap.get(mapping.platform_id);
+      
+      // If not on remote, or local status differs from remote (sync logic)
+      if (!remote || remote.status !== (mapping.mal_status || 'Plan to Watch') || remote.episodesWatched !== (mapping.last_synced_episodes || 0)) {
+        // Construct entry to push
+        toUpdate.push({
+          platformId: mapping.platform_id,
+          title: mapping.title,
+          episodesWatched: mapping.last_synced_episodes || 0,
+          status: mapping.mal_status || 'Plan to Watch'
+        });
+      }
+    }
+  }
 
   console.log(`\n--- Synchronization Plan ---`);
-  console.log(`New Entries: ${diff.newEntries.length}`);
-  console.log(`Modified Entries: ${diff.modifiedEntries.length}`);
-  console.log(`Unchanged Entries: ${diff.unchangedEntries.length}`);
+  console.log(`Entries to push to AnimeAV1: ${toUpdate.length}`);
   
-  // Actually execute the updates
-  const toUpdate = [...diff.newEntries, ...diff.modifiedEntries.map(m => m.entry)];
   if (toUpdate.length === 0) {
     console.log('\nEverything is up to date! Nothing to sync.');
     return;
   }
 
-  console.log('\nExecuting sync...');
+  console.log('\nExecuting sync (pushing local to remote)...');
   for (const entry of toUpdate) {
     try {
       console.log(`Syncing ${entry.title}...`);
-      await platform.updateEntryStatus(entry);
-      console.log(`✅ Synced ${entry.title}`);
+      await platform.updateEntryStatus(entry as any);
     } catch (err: any) {
       console.error(`❌ Failed to sync ${entry.title}: ${err.message}`);
     }
   }
 
   console.log('\nSync complete!');
+}
+
+export async function runImportAnimeAV1() {
+  console.log('\n--- AnimeAV1 Automated Importer ---');
+  const platform = new AnimeAV1Platform();
+  
+  const session = process.env.ANIMEAV1_SESSION;
+  if (!session) {
+    console.error('❌ ANIMEAV1_SESSION environment variable is required');
+    return;
+  }
+
+  try {
+    await platform.authenticate({ session });
+  } catch (err: any) {
+    console.error('❌ Authentication failed:', err.message);
+    return;
+  }
+
+  const { PlatformImporterService } = await import('../services/PlatformImporterService.js');
+  const repo = new FileMappingRepository('./migrations/mappings.json');
+  
+  const importer = new PlatformImporterService(repo, platform);
+  const mapped = await importer.mapMissingEntries();
+  
+  console.log(`\n🎉 Successfully mapped ${mapped} new entries to AnimeAV1!`);
+  console.log(`Run 'theone animeav1 sync' to push these new entries to the cloud.`);
 }

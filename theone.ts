@@ -138,6 +138,13 @@ export function buildCLI() {
       await runSyncAnimeAV1();
     });
 
+  animeav1Cmd.command('import')
+    .description('Automated migration: search and map unmapped MAL entries to AnimeAV1')
+    .action(async () => {
+      const { runImportAnimeAV1 } = await import('./src/cli/animeav1Cli.js');
+      await runImportAnimeAV1();
+    });
+
   return program;
 }
 

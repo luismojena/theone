@@ -113,19 +113,38 @@ export class AnimeAV1Platform extends IAnimePlatform {
   }
 
   async searchAnime(query: string): Promise<any[]> {
-    const url = `https://animeav1.com/search?q=${encodeURIComponent(query)}`;
+    if (!this.defaultHeaders['Cookie']) throw new Error("Must authenticate first");
+
+    const url = `https://animeav1.com/catalogo?search=${encodeURIComponent(query)}`;
     const res = await this.request(url);
     const html = await res.text();
-    const $ = cheerio.load(html);
     const results: any[] = [];
 
-    $('.search-result').each((_, el) => {
-      const title = $(el).find('.title').text().trim();
-      const href = $(el).find('a').attr('href');
-      if (title && href) {
-        results.push({ title, url: href, platform_id: href.split('/').pop() });
+    // The data is hydrated in the HTML inside a JSON block. We extract id, title, and slug.
+    const searchRegex = /\{id:"?(\d+)"?,title:"([^"]+)"[^\}]*slug:"([^"]+)"/g;
+    
+    let match;
+    const seenIds = new Set<string>(); // Prevent duplicates
+    
+    while ((match = searchRegex.exec(html)) !== null) {
+      const mediaId = match[1]!;
+      const title = match[2]!;
+      const slug = match[3]!;
+
+      // Escape unicode or hex escapes if any
+      const cleanTitle = title.replace(/\\\\u[\dA-F]{4}/gi, (m) => 
+         String.fromCharCode(parseInt(m.replace(/\\\\u/g, ''), 16))
+      );
+
+      if (!seenIds.has(mediaId)) {
+        seenIds.add(mediaId);
+        results.push({
+          platform_id: mediaId,
+          title: cleanTitle,
+          url: `https://animeav1.com/media/${slug}`
+        });
       }
-    });
+    }
 
     return results;
   }
