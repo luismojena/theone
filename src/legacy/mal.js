@@ -15,7 +15,7 @@ import {
   EXPORT_FILE,
   DATA_DIR,
   ensureDataDir
-} from './utils.js';
+} from '../utils.js';
 import { loadMappings, setMapping, getMapping, getMappingByMalId, saveMappings, computeIncrementalDiff } from './mapping.js';
 
 

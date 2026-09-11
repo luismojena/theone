@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { MAPPINGS_FILE, RESOLVED_FILE, SYNC_JKANIME_FILE, ensureDataDir } from './utils.js';
+import { MAPPINGS_FILE, RESOLVED_FILE, SYNC_JKANIME_FILE, ensureDataDir } from '../utils.js';
 
 
 export function loadMappings() {

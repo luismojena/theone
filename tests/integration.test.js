@@ -1,8 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert';
 import fs from 'fs';
-import { searchMAL } from '../src/mal.js';
-import { loginJKAnime, searchJKAnime, getJKAnimeDetails, saveAnimeJKAnime } from '../src/jkanime.js';
+import { searchMAL } from '../src/legacy/mal.js';
+import { loginJKAnime, searchJKAnime, getJKAnimeDetails, saveAnimeJKAnime } from '../src/legacy/jkanime.js';
 
 // Setup Mock Fetch utility
 const originalFetch = globalThis.fetch;

@@ -68,9 +68,19 @@ Automated Live MAL Watchlist Fetching & Export Diff Breakdown Implementation:
 - **Testing**: Added unit test `Live MAL Watchlist API Fetching Mock` in [`tests/migration.test.js`](file:///home/prow/myanimelist_migration/tests/migration.test.js). All 16 unit & integration tests pass cleanly.
 
 
+## DDD Architectural Refactoring
 
+- [ ] Define Core Domain Entities (`Anime`, `WatchlistEntry`, standard `WatchStatus` enum)
+- [ ] Define Port Interfaces (`IAnimePlatform`, `MappingRepository`)
+- [ ] Refactor File I/O into a concrete `FileMappingRepository`
+- [ ] Refactor MyAnimeList logic into `MALPlatform` adapter
+- [ ] Refactor JKanime logic into `JKAnimePlatform` adapter
+- [ ] Refactor AnimeFLV logic into `AnimeFLVPlatform` adapter
+- [ ] Implement `WatchlistSyncService` to orchestrate platform-to-platform syncing
+- [ ] Refactor `migrate.js` CLI to initialize dependencies and use the new Services
+- [ ] Verify existing tests pass and update tests for new class structures
 
+## New Platform Integrations
 
-
-
-
+- [ ] Implement `AnimeAV1Platform` adapter (login, fetch, sync)
+- [ ] Register AnimeAV1 commands in CLI router

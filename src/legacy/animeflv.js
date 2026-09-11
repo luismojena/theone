@@ -1,6 +1,6 @@
 import fs from 'fs';
 import * as cheerio from 'cheerio';
-import { sleep, SCRAPED_FILE, ensureDataDir } from './utils.js';
+import { sleep, SCRAPED_FILE, ensureDataDir } from '../utils.js';
 
 const PROFILE_URL = 'https://www4.animeflv.net/perfil/PROW/siguiendo';
 

@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert';
 import fs from 'fs';
 import path from 'path';
-import { getBackupTimestamp, createBackupDirectory, runBackup } from '../src/backup.js';
+import { getBackupTimestamp, createBackupDirectory, runBackup } from '../src/services/BackupService.js';
 
 test('Backup Timestamp Format', () => {
   const ts = getBackupTimestamp();

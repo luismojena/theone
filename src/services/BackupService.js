@@ -8,7 +8,7 @@ import {
   MAPPINGS_FILE,
   EXPORT_FILE,
   ensureDataDir
-} from './utils.js';
+} from '../utils.js';
 
 export const BACKUPS_DIR = `${DATA_DIR}/backups`;
 

@@ -1,8 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert';
 import { normalize, extractSeason, cleanBaseTitle, normalizeJKAnimeStatus } from '../src/utils.js';
-import { scoreMatch } from '../src/mal.js';
-import { scoreMatchSimple } from '../src/jkanime.js';
+import { scoreMatch } from '../src/legacy/mal.js';
+import { scoreMatchSimple } from '../src/legacy/jkanime.js';
 
 test('Title Normalization', () => {
   assert.strictEqual(normalize(''), '');
@@ -80,7 +80,7 @@ test('Live MAL Watchlist API Fetching Mock', async () => {
     return originalFetch(url);
   };
 
-  const { fetchLiveMALWatchlist } = await import('../src/mal.js');
+  const { fetchLiveMALWatchlist } = await import('../src/legacy/mal.js');
   const malMap = await fetchLiveMALWatchlist('testuser');
 
   assert.strictEqual(malMap.size, 2);

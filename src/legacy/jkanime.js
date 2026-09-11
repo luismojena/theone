@@ -10,9 +10,10 @@ import {
   RESOLVED_FILE,
   SYNC_JKANIME_FILE,
   ensureDataDir
-} from './utils.js';
-import { setMapping, getMapping, getMappingByMalId } from './mapping.js';
+} from '../utils.js';
+import { setMapping, getMapping, getMappingByMalId, loadMappings } from './mapping.js';
 import { fetchLiveMALWatchlist } from './mal.js';
+
 
 
 
@@ -220,18 +221,42 @@ export async function runSyncJKAnime() {
   ensureDataDir();
   console.log('\n--- JKanime Watchlist Synchronization ---');
   
-  if (!fs.existsSync(RESOLVED_FILE)) {
-    console.error(`Resolved file ${RESOLVED_FILE} not found. Run "resolve" command first.`);
-    return;
+  const mappings = loadMappings();
+  const matchedMap = new Map();
+
+  if (fs.existsSync(RESOLVED_FILE)) {
+    const resolvedList = JSON.parse(fs.readFileSync(RESOLVED_FILE, 'utf8'));
+    for (const item of resolvedList) {
+      if (item.status === 'matched' && item.match && item.match.mal_id) {
+        matchedMap.set(Number(item.match.mal_id), {
+          title: item.title,
+          slug: item.slug || item.title,
+          match: item.match
+        });
+      }
+    }
   }
 
-  const resolvedList = JSON.parse(fs.readFileSync(RESOLVED_FILE, 'utf8'));
-  const matchedList = resolvedList.filter(item => item.status === 'matched');
+  for (const entry of Object.values(mappings)) {
+    if (entry.mal_id && Number(entry.mal_id) > 0) {
+      matchedMap.set(Number(entry.mal_id), {
+        title: entry.title || entry.mal_title,
+        slug: entry.platform_id,
+        match: {
+          mal_id: Number(entry.mal_id),
+          title: entry.mal_title || entry.title
+        }
+      });
+    }
+  }
+
+  const matchedList = Array.from(matchedMap.values());
 
   if (matchedList.length === 0) {
-    console.warn('No matched entries found in resolved.json. Run "resolve"/"review" first.');
+    console.warn('No matched entries found to sync.');
     return;
   }
+
 
   let syncState = {};
   if (fs.existsSync(SYNC_JKANIME_FILE)) {
@@ -330,98 +355,124 @@ export async function runSyncJKAnime() {
     console.log(`\n========================================`);
     console.log(`${progress} Syncing: "${item.title}"...`);
 
-    // Step 1: Search JKanime
-    const searchResults = await searchJKAnime(item.title);
-    await sleep(1000); // Be gentle
+    const malId = item.match ? Number(item.match.mal_id) : 0;
+    const storedMapping = malId ? getMappingByMalId(malId) : null;
+    const cachedState = syncState[item.slug];
 
     let selectedMatch = null;
-    if (searchResults.length > 0) {
-      const topMatch = searchResults[0];
-      const matchScore = scoreMatchSimple(item.title, topMatch.title);
 
-      if (matchScore >= 80) {
-        console.log(`  Auto-matched high confidence [${matchScore}%]: "${topMatch.title}"`);
-        selectedMatch = topMatch;
-      } else if (autoskip) {
-        console.log(`  Autoskip active. Low-confidence match [${matchScore}%] for "${topMatch.title}". Skipping.`);
-        syncState[item.slug] = {
-          title: item.title,
-          status: 'skipped',
-          reason: 'low_confidence',
-          topMatch: topMatch.title,
-          score: matchScore,
-          date: new Date().toISOString()
-        };
-        fs.writeFileSync(SYNC_JKANIME_FILE, JSON.stringify(syncState, null, 2));
-        continue;
-      }
+    // Check if we already have a saved JKanime match from previous interactive/sync runs
+    if (cachedState && cachedState.jkanime_url && cachedState.jkanime_id) {
+      selectedMatch = {
+        title: cachedState.jkanime_title || item.title,
+        href: cachedState.jkanime_url,
+        animeId: cachedState.jkanime_id
+      };
+      console.log(`  Reusing saved JKanime match: "${selectedMatch.title}"`);
+    } else if (storedMapping && storedMapping.jkanime_id) {
+      const jkSlug = storedMapping.platform === 'jkanime' ? storedMapping.platform_id : item.slug;
+      selectedMatch = {
+        title: storedMapping.title || storedMapping.mal_title,
+        href: `https://jkanime.net/${jkSlug}/`,
+        animeId: storedMapping.jkanime_id
+      };
+      console.log(`  Reusing saved JKanime mapping: "${selectedMatch.title}"`);
     }
 
     if (!selectedMatch) {
-      if (autoskip) {
-        console.log(`  Autoskip active. No results for "${item.title}". Skipping.`);
-        syncState[item.slug] = {
-          title: item.title,
-          status: 'skipped',
-          reason: 'no_results',
-          date: new Date().toISOString()
-        };
-        fs.writeFileSync(SYNC_JKANIME_FILE, JSON.stringify(syncState, null, 2));
-        continue;
-      }
+      // Step 1: Search JKanime
+      const searchResults = await searchJKAnime(item.title);
+      await sleep(1000); // Be gentle
 
-      console.log(`  No exact match found for: "${item.title}"`);
       if (searchResults.length > 0) {
-        console.log('  Candidates:');
-        searchResults.slice(0, 5).forEach((cand, idx) => {
-          console.log(`    [${idx + 1}] "${cand.title}" (${cand.tipo})`);
-        });
-      }
+        const topMatch = searchResults[0];
+        const matchScore = scoreMatchSimple(item.title, topMatch.title);
 
-      console.log('  Options: [1-N] Choose match | [s] Skip | [s <query>] Custom search');
-      let resolved = false;
-      while (!resolved) {
-        const userInput = await askQuestion('  Choice: ');
-        if (userInput.toLowerCase() === 's') {
-          console.log('  Skipped.');
+        if (matchScore >= 80) {
+          console.log(`  Auto-matched high confidence [${matchScore}%]: "${topMatch.title}"`);
+          selectedMatch = topMatch;
+        } else if (autoskip) {
+          console.log(`  Autoskip active. Low-confidence match [${matchScore}%] for "${topMatch.title}". Skipping.`);
           syncState[item.slug] = {
             title: item.title,
             status: 'skipped',
-            reason: 'manual_skip',
+            reason: 'low_confidence',
+            topMatch: topMatch.title,
+            score: matchScore,
             date: new Date().toISOString()
           };
-          resolved = true;
           fs.writeFileSync(SYNC_JKANIME_FILE, JSON.stringify(syncState, null, 2));
-        } else if (userInput.startsWith('s ')) {
-          const customQuery = userInput.substring(2).trim();
-          console.log(`  Searching custom query "${customQuery}"...`);
-          const customResults = await searchJKAnime(customQuery);
-          await sleep(1000);
-          if (customResults.length === 0) {
-            console.log('  No results found.');
-          } else {
-            console.log('  Custom Search Results:');
-            customResults.slice(0, 5).forEach((cand, idx) => {
-              console.log(`    [${idx + 1}] "${cand.title}" (${cand.tipo})`);
-            });
-            const selection = await askQuestion('  Select index to map (or Enter to search again): ');
-            const selIdx = parseInt(selection, 10) - 1;
-            if (selIdx >= 0 && selIdx < customResults.length) {
-              selectedMatch = customResults[selIdx];
-              resolved = true;
-            }
-          }
-        } else {
-          const selIdx = parseInt(userInput, 10) - 1;
-          if (selIdx >= 0 && selIdx < searchResults.length) {
-            selectedMatch = searchResults[selIdx];
+          continue;
+        }
+      }
+
+      if (!selectedMatch) {
+        if (autoskip) {
+          console.log(`  Autoskip active. No results for "${item.title}". Skipping.`);
+          syncState[item.slug] = {
+            title: item.title,
+            status: 'skipped',
+            reason: 'no_results',
+            date: new Date().toISOString()
+          };
+          fs.writeFileSync(SYNC_JKANIME_FILE, JSON.stringify(syncState, null, 2));
+          continue;
+        }
+
+        console.log(`  No exact match found for: "${item.title}"`);
+        if (searchResults.length > 0) {
+          console.log('  Candidates:');
+          searchResults.slice(0, 5).forEach((cand, idx) => {
+            console.log(`    [${idx + 1}] "${cand.title}" (${cand.tipo})`);
+          });
+        }
+
+        console.log('  Options: [1-N] Choose match | [s] Skip | [s <query>] Custom search');
+        let resolved = false;
+        while (!resolved) {
+          const userInput = await askQuestion('  Choice: ');
+          if (userInput.toLowerCase() === 's') {
+            console.log('  Skipped.');
+            syncState[item.slug] = {
+              title: item.title,
+              status: 'skipped',
+              reason: 'manual_skip',
+              date: new Date().toISOString()
+            };
             resolved = true;
+            fs.writeFileSync(SYNC_JKANIME_FILE, JSON.stringify(syncState, null, 2));
+          } else if (userInput.startsWith('s ')) {
+            const customQuery = userInput.substring(2).trim();
+            console.log(`  Searching custom query "${customQuery}"...`);
+            const customResults = await searchJKAnime(customQuery);
+            await sleep(1000);
+            if (customResults.length === 0) {
+              console.log('  No results found.');
+            } else {
+              console.log('  Custom Search Results:');
+              customResults.slice(0, 5).forEach((cand, idx) => {
+                console.log(`    [${idx + 1}] "${cand.title}" (${cand.tipo})`);
+              });
+              const selection = await askQuestion('  Select index to map (or Enter to search again): ');
+              const selIdx = parseInt(selection, 10) - 1;
+              if (selIdx >= 0 && selIdx < customResults.length) {
+                selectedMatch = customResults[selIdx];
+                resolved = true;
+              }
+            }
           } else {
-            console.log('  Invalid input.');
+            const selIdx = parseInt(userInput, 10) - 1;
+            if (selIdx >= 0 && selIdx < searchResults.length) {
+              selectedMatch = searchResults[selIdx];
+              resolved = true;
+            } else {
+              console.log('  Invalid input.');
+            }
           }
         }
       }
     }
+
 
     if (selectedMatch) {
       console.log(`  Fetching details for: "${selectedMatch.title}"...`);
@@ -504,14 +555,22 @@ export async function runSyncJKAnime() {
   }
 
   console.log('\n=== Synchronization Complete! ===');
-  const counts = Object.values(syncState).reduce((acc, curr) => {
-    acc[curr.status] = (acc[curr.status] || 0) + 1;
-    return acc;
-  }, {});
-  console.log(`Summary:`);
-  console.log(`- Synced: ${counts.synced || 0}`);
-  console.log(`- Skipped: ${counts.skipped || 0}`);
-  console.log(`- Failed: ${counts.failed || 0}`);
+  let syncedBatch = 0;
+  let skippedBatch = 0;
+  let failedBatch = 0;
+
+  for (const item of itemsToSync) {
+    const st = syncState[item.slug];
+    if (st && st.status === 'synced') syncedBatch++;
+    else if (st && st.status === 'skipped') skippedBatch++;
+    else if (st && st.status === 'failed') failedBatch++;
+  }
+
+  console.log(`Summary (${itemsToSync.length} items):`);
+  console.log(`- Synced: ${syncedBatch}`);
+  console.log(`- Skipped: ${skippedBatch}`);
+  console.log(`- Failed: ${failedBatch}`);
+
 }
 
 export function parseJKAnimeProfileHTML(html) {

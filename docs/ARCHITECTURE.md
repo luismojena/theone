@@ -126,8 +126,8 @@ export async function resolveNewSiteList(watchlist) {
 }
 ```
 
-### Step 3: Register Commands in `migrate.js`
-In `migrate.js`, add a CLI command case:
+### Step 3: Register Commands in `theone.js`
+In `theone.js`, add a CLI command case:
 ```javascript
 case 'sync-crunchyroll':
   await runSyncCrunchyroll();
