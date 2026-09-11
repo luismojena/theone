@@ -17,3 +17,5 @@ scratch_*.js
 scratch_*.mjs
 
 
+# Compiled TypeScript output
+dist/
