@@ -70,11 +70,11 @@ export class FileMappingRepository {
 
 		mappings[key] = {
 			...(mappings[key] || {}),
+			...extraData, // Extra data spreads first, so it preserves non-core fields
 			platform,
 			platform_id: platformId,
-			mal_id: Number(malId),
+			mal_id: Number(malId), // Explicit args override any ghost data inside extraData
 			mal_title: malTitle,
-			...extraData,
 			updated_at: new Date().toISOString(),
 		};
 

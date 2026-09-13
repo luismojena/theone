@@ -134,7 +134,16 @@ export async function runResolve() {
 		console.log(`\n✅ Resolved ${resolvedCount} out of ${missingCount} missing entries.`);
 	}
 }
-export async function runReview() {}
+export async function runReview() {
+	const repo = new FileMappingRepository("./migrations/mappings.json");
+	const malPlatform = new MALPlatform();
+
+	// Dynamically import the service
+	const { InteractiveReviewService } = await import("../services/InteractiveReviewService.js");
+	const reviewService = new InteractiveReviewService(repo, malPlatform);
+
+	await reviewService.runFullReviewLoop();
+}
 export async function completeMALWatching() {}
 
 export async function runFetchMALList() {
