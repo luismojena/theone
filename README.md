@@ -67,15 +67,20 @@ Iterates through all locally tracked MAL IDs, queries AnimeAV1 for exact matches
 npx tsx theone.ts animeav1 import
 ```
 
-### 📜 Legacy Platform Commands
+### 🗡️ AnimeFLV Commands
+* **`scrape`**: Plunders your AnimeFLV watchlist and saves it to local storage.
+* **`resolve`**: Maps all previously scraped AnimeFLV titles to their canonical MAL IDs.
 
-* **`scrape`**: Extracts your AnimeFLV watchlist.
-* **`resolve`**: Maps AnimeFLV titles to MAL IDs.
-* **`review`**: Interactive CLI to manually resolve ambiguous mapping matches (for when the AI is acting like a foolish Took).
-* **`fetch-jkanime-list`**: Fetches current JKanime states.
-* **`sync-jkanime [--force] [--autoskip]`**: Pushes local states up to JKanime.
-* **`export`**: Dumps an importable MyAnimeList XML file.
-* **`complete-watching`**: Automatically marks finished/aired series as Completed on MAL.
+### 🥷 JKanime Commands
+* **`fetch-jkanime-list`**: Stealthily fetches your current JKanime states and caches them.
+* **`sync-jkanime [--force] [--autoskip]`**: Pushes your local watchlist states up to your live JKanime account. Use `--autoskip` to let the script run hands-free.
+
+### 📖 MyAnimeList (MAL) Commands
+* **`export`**: Forges an importable XML file based on your mapped databases to upload directly to MAL.
+* **`complete-watching`**: Queries the Jikan API to automatically mark any currently "Watching" series that have finished airing as "Completed" on MAL.
+
+### 🧙‍♂️ Utility Commands
+* **`review`**: Interactive CLI wizard to manually assign MAL IDs for ambiguous matches (for when the AI is acting like a foolish Took).
 
 ---
 
