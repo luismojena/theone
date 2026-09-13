@@ -9,7 +9,10 @@
 		"test": "node --import tsx --test tests/**/*.ts",
 		"lint": "biome lint .",
 		"format": "biome format --write .",
-		"build": "tsc"
+		"build": "tsc",
+		"docs:install": "pip install mkdocs-material",
+		"docs:serve": "cp README.md docs/index.md && mkdocs serve",
+		"docs:build": "cp README.md docs/index.md && mkdocs build"
 	},
 	"dependencies": {
 		"cheerio": "^1.0.0",
