@@ -1,89 +1,85 @@
-import { IAnimePlatform } from "../core/IAnimePlatform.js";
-import { WatchlistEntry, WatchStatus } from "../core/domain.js";
 import * as cheerio from "cheerio";
+import { WatchlistEntry, WatchStatus } from "../core/domain.js";
+import { IAnimePlatform } from "../core/IAnimePlatform.js";
 import { sleep } from "../utils.js";
 
 export class AnimeFLVPlatform extends IAnimePlatform {
-  profileId: string | null = null;
+	profileId: string | null = null;
 
-  constructor() {
-    super();
-  }
+	get platformName() {
+		return "animeflv";
+	}
 
-  get platformName() {
-    return "animeflv";
-  }
+	async authenticate(credentials: any) {
+		if (!credentials.profileId) {
+			throw new Error('AnimeFLV requires a profileId (e.g. "PROW")');
+		}
+		this.profileId = credentials.profileId;
+	}
 
-  async authenticate(credentials: any) {
-    if (!credentials.profileId) {
-      throw new Error('AnimeFLV requires a profileId (e.g. "PROW")');
-    }
-    this.profileId = credentials.profileId;
-  }
+	async fetchWatchlist() {
+		if (!this.profileId)
+			throw new Error("Must authenticate with profileId first");
 
-  async fetchWatchlist() {
-    if (!this.profileId)
-      throw new Error("Must authenticate with profileId first");
+		let page = 1;
+		const entries: WatchlistEntry[] = [];
+		const baseUrl = `https://www4.animeflv.net/perfil/${encodeURIComponent(this.profileId)}/siguiendo`;
 
-    let page = 1;
-    const entries: WatchlistEntry[] = [];
-    const baseUrl = `https://www4.animeflv.net/perfil/${encodeURIComponent(this.profileId)}/siguiendo`;
+		while (true) {
+			const url = `${baseUrl}?page=${page}`;
+			console.log(`Fetching AnimeFLV page ${page}...`);
 
-    while (true) {
-      const url = `${baseUrl}?page=${page}`;
-      console.log(`Fetching AnimeFLV page ${page}...`);
+			let html;
+			try {
+				const res = await this.request(url, {});
+				if (!res.ok) break;
 
-      let html;
-      try {
-        const res = await this.request(url, {});
-        if (!res.ok) break;
+				html = await res.text();
+			} catch (err: any) {
+				if (err.message === "WEBSITE_DOWN") {
+					break; // Stop scraping, return what we have (if any) or bubble up.
+				}
+				throw err;
+			}
 
-        html = await res.text();
-      } catch (err: any) {
-        if (err.message === "WEBSITE_DOWN") {
-          break; // Stop scraping, return what we have (if any) or bubble up.
-        }
-        throw err;
-      }
+			const $ = cheerio.load(html);
+			const animeElements = $("ul.ListAnimes li");
 
-      const $ = cheerio.load(html);
-      const animeElements = $("ul.ListAnimes li");
+			if (animeElements.length === 0) {
+				break; // No more pages
+			}
 
-      if (animeElements.length === 0) {
-        break; // No more pages
-      }
+			animeElements.each((_i, el) => {
+				const titleLink = $(el).find("h3.Title a");
+				const title = titleLink.text().trim();
+				const href = titleLink.attr("href");
+				const slug = href ? href.replace(/^\/anime\//, "") : "";
 
-      animeElements.each((i, el) => {
-        const titleLink = $(el).find("h3.Title a");
-        const title = titleLink.text().trim();
-        const href = titleLink.attr("href");
-        const slug = href ? href.replace(/^\/anime\//, "") : "";
+				if (slug) {
+					entries.push(
+						new WatchlistEntry(
+							this.platformName,
+							slug,
+							title,
+							WatchStatus.WATCHING,
+							0,
+						),
+					);
+				}
+			});
 
-        if (slug) {
-          entries.push(
-            new WatchlistEntry(
-              this.platformName,
-              slug,
-              title,
-              WatchStatus.WATCHING,
-              0,
-            ),
-          );
-        }
-      });
+			await sleep(1000);
+			page++;
+		}
 
-      await sleep(1000);
-      page++;
-    }
+		return entries;
+	}
 
-    return entries;
-  }
+	async updateEntryStatus(_entry: any) {
+		throw new Error("AnimeFLV does not support automated status updates.");
+	}
 
-  async updateEntryStatus(entry: any) {
-    throw new Error("AnimeFLV does not support automated status updates.");
-  }
-
-  async searchAnime(query: string): Promise<any[]> {
-    throw new Error("Search not implemented for AnimeFLV.");
-  }
+	async searchAnime(_query: string): Promise<any[]> {
+		throw new Error("Search not implemented for AnimeFLV.");
+	}
 }

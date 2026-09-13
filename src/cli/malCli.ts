@@ -1,59 +1,66 @@
-import fs from 'fs';
-import { MALPlatform } from '../platforms/MALPlatform.js';
-import { FileMappingRepository } from '../repositories/FileMappingRepository.js';
-import { askQuestion, loadConfig, saveConfig, EXPORT_FILE } from '../utils.js';
-import { WatchStatus } from '../core/domain.js';
+import fs from "node:fs";
+import { WatchStatus } from "../core/domain.js";
+import { MALPlatform } from "../platforms/MALPlatform.js";
+import { FileMappingRepository } from "../repositories/FileMappingRepository.js";
+import { askQuestion, EXPORT_FILE, loadConfig, saveConfig } from "../utils.js";
 
 export async function runExport() {
-  console.log('--- Exporting resolved matches to MyAnimeList XML ---');
-  const config = loadConfig();
-  let username = process.env.MAL_USER || config.mal_user;
+	console.log("--- Exporting resolved matches to MyAnimeList XML ---");
+	const config = loadConfig();
+	let username = process.env.MAL_USER || config.mal_user;
 
-  if (!username) {
-    username = await askQuestion('Enter your MyAnimeList Username (press Enter to skip live diff): ');
-    if (username) {
-      config.mal_user = username;
-      saveConfig(config);
-    }
-  }
+	if (!username) {
+		username = await askQuestion(
+			"Enter your MyAnimeList Username (press Enter to skip live diff): ",
+		);
+		if (username) {
+			config.mal_user = username;
+			saveConfig(config);
+		}
+	}
 
-  let liveMalMap = new Map();
-  if (username) {
-    console.log(`Fetching live MyAnimeList watchlist for user "${username}"...`);
-    const platform = new MALPlatform();
-    await platform.authenticate({ username });
-    const entries = await platform.fetchWatchlist();
-    for (const entry of entries) {
-      liveMalMap.set(entry.malId, entry);
-    }
-    console.log(`✅ Successfully fetched ${liveMalMap.size} live entries from MyAnimeList.`);
-  }
+	const liveMalMap = new Map();
+	if (username) {
+		console.log(
+			`Fetching live MyAnimeList watchlist for user "${username}"...`,
+		);
+		const platform = new MALPlatform();
+		await platform.authenticate({ username });
+		const entries = await platform.fetchWatchlist();
+		for (const entry of entries) {
+			liveMalMap.set(entry.malId, entry);
+		}
+		console.log(
+			`✅ Successfully fetched ${liveMalMap.size} live entries from MyAnimeList.`,
+		);
+	}
 
-  const repo = new FileMappingRepository('./migrations/mappings.json');
-  const mappings = repo.loadMappings();
-  const matchedMap = new Map();
+	const repo = new FileMappingRepository("./migrations/mappings.json");
+	const mappings = repo.loadMappings();
+	const matchedMap = new Map();
 
-  for (const entry of Object.values(mappings)) {
-    if (entry.mal_id && Number(entry.mal_id) > 0) {
-      matchedMap.set(Number(entry.mal_id), entry);
-    }
-  }
+	for (const entry of Object.values(mappings)) {
+		if (entry.mal_id && Number(entry.mal_id) > 0) {
+			matchedMap.set(Number(entry.mal_id), entry);
+		}
+	}
 
-  const matched = Array.from(matchedMap.values());
-  if (matched.length === 0) {
-    console.warn('No matched entries found to export.');
-    return;
-  }
+	const matched = Array.from(matchedMap.values());
+	if (matched.length === 0) {
+		console.warn("No matched entries found to export.");
+		return;
+	}
 
-  let xml = `<?xml version="1.0" encoding="UTF-8" ?>\n<myanimelist>\n  <myinfo>\n    <user_export_type>1</user_export_type>\n  </myinfo>\n`;
+	let xml = `<?xml version="1.0" encoding="UTF-8" ?>\n<myanimelist>\n  <myinfo>\n    <user_export_type>1</user_export_type>\n  </myinfo>\n`;
 
-  for (const item of matched) {
-    const malId = item.mal_id;
-    const malTitle = item.mal_title;
-    const itemStatus = item.mal_status || item.last_synced_status || WatchStatus.WATCHING;
-    const itemEpisodes = item.last_synced_episodes || 0;
+	for (const item of matched) {
+		const malId = item.mal_id;
+		const malTitle = item.mal_title;
+		const itemStatus =
+			item.mal_status || item.last_synced_status || WatchStatus.WATCHING;
+		const itemEpisodes = item.last_synced_episodes || 0;
 
-    xml += `  <anime>
+		xml += `  <anime>
     <series_animedb_id>${malId}</series_animedb_id>
     <series_title><![CDATA[${malTitle}]]></series_title>
     <my_id>0</my_id>
@@ -61,11 +68,11 @@ export async function runExport() {
     <my_status>${itemStatus}</my_status>
     <update_on_import>1</update_on_import>
   </anime>\n`;
-  }
+	}
 
-  xml += `</myanimelist>\n`;
-  fs.writeFileSync(EXPORT_FILE, xml, 'utf8');
-  console.log(`Export complete: ${EXPORT_FILE}`);
+	xml += `</myanimelist>\n`;
+	fs.writeFileSync(EXPORT_FILE, xml, "utf8");
+	console.log(`Export complete: ${EXPORT_FILE}`);
 }
 
 export async function runResolve() {}

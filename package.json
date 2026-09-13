@@ -1,22 +1,25 @@
 {
-  "name": "myanimelist-migration",
-  "version": "1.0.0",
-  "type": "module",
-  "description": "Migrate watch list from AnimeFLV to MyAnimeList",
-  "main": "theone.js",
-  "scripts": {
-    "start": "npx tsx theone.ts",
-    "test": "node --import tsx --test tests/**/*.ts",
-    "build": "tsc"
-  },
-  "dependencies": {
-    "cheerio": "^1.0.0",
-    "commander": "^15.0.0",
-    "dotenv": "^17.4.2"
-  },
-  "devDependencies": {
-    "@types/node": "^22.20.2",
-    "tsx": "^4.23.13",
-    "typescript": "^7.0.2"
-  }
+	"name": "myanimelist-migration",
+	"version": "1.0.0",
+	"type": "module",
+	"description": "Migrate watch list from AnimeFLV to MyAnimeList",
+	"main": "theone.js",
+	"scripts": {
+		"start": "npx tsx theone.ts",
+		"test": "node --import tsx --test tests/**/*.ts",
+		"lint": "biome lint .",
+		"format": "biome format --write .",
+		"build": "tsc"
+	},
+	"dependencies": {
+		"cheerio": "^1.0.0",
+		"commander": "^15.0.0",
+		"dotenv": "^17.4.2"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.5.13",
+		"@types/node": "^22.20.2",
+		"tsx": "^4.23.13",
+		"typescript": "^7.0.2"
+	}
 }
