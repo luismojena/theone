@@ -123,7 +123,7 @@ npx tsx theone.ts review
 
 ```text
 ├── docs/                     # Textos antiguos y Guía de Extensibilidad
-│   └── ARCHITECTURE.md       # Lee esto antes de hacer un PR
+│   └── [ARCHITECTURE.es.md](ARCHITECTURE.es.md)       # Lee esto antes de hacer un PR
 ├── migrations/               # La Bóveda: Bases de datos generadas y exportaciones
 │   ├── mappings.json         # Base de datos permanente de mapeo a MAL
 │   └── import.xml            # Importación generada de XML para MAL

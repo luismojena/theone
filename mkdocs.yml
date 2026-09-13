@@ -1,5 +1,7 @@
 site_name: The One (Anime Sync)
 site_description: One Script to rule them all, One Script to find them.
+repo_name: GitHub Repository
+repo_url: https://github.com/your-username/myanimelist-migration
 theme:
   name: material
   palette:

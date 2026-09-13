@@ -124,7 +124,7 @@ npx tsx theone.ts review
 
 ```text
 ├── docs/                     # Ancient texts and Extensibility Guide
-│   └── ARCHITECTURE.md       # Read this before writing a PR
+│   └── [ARCHITECTURE.md](ARCHITECTURE.md)       # Read this before writing a PR
 ├── migrations/               # The Vault: Generated databases and exports
 │   ├── mappings.json         # Permanent platform-to-MAL mapping database
 │   └── import.xml            # Generated MAL XML list import
