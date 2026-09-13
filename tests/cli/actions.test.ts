@@ -1,14 +1,14 @@
 import assert from "node:assert";
-import { test, mock } from "node:test";
-import { FileMappingRepository } from "../../src/repositories/FileMappingRepository.js";
+import fs from "node:fs";
+import { mock, test } from "node:test";
+import { runFetchAnimeAV1List, runSyncAnimeAV1 } from "../../src/cli/animeav1Cli.js";
+import { runFetchJKAnimeList } from "../../src/cli/jkanimeCli.js";
+import { runExport } from "../../src/cli/malCli.js";
+import { WatchlistEntry, WatchStatus } from "../../src/core/domain.js";
 import { AnimeAV1Platform } from "../../src/platforms/AnimeAV1Platform.js";
 import { JKAnimePlatform } from "../../src/platforms/JKAnimePlatform.js";
 import { MALPlatform } from "../../src/platforms/MALPlatform.js";
-import { WatchlistEntry, WatchStatus } from "../../src/core/domain.js";
-import { runFetchJKAnimeList } from "../../src/cli/jkanimeCli.js";
-import { runFetchAnimeAV1List, runSyncAnimeAV1 } from "../../src/cli/animeav1Cli.js";
-import { runExport } from "../../src/cli/malCli.js";
-import fs from "node:fs";
+import { FileMappingRepository } from "../../src/repositories/FileMappingRepository.js";
 
 test("CLI Action: runFetchAnimeAV1List authenticates and fetches entries", async () => {
 	process.env.ANIMEAV1_SESSION = "mock-session";

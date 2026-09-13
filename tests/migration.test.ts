@@ -1,8 +1,8 @@
 import assert from "node:assert";
-import { test, mock } from "node:test";
-import { FileMappingRepository } from "../src/repositories/FileMappingRepository.js";
-import { MALPlatform } from "../src/platforms/MALPlatform.js";
+import { mock, test } from "node:test";
 import { runResolve } from "../src/cli/malCli.js";
+import { MALPlatform } from "../src/platforms/MALPlatform.js";
+import { FileMappingRepository } from "../src/repositories/FileMappingRepository.js";
 
 test("runResolve automatically finds and updates missing MAL IDs via MALPlatform", async () => {
 	// 1. Mock the repository to return an entry with a missing MAL ID
