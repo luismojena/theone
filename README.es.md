@@ -19,6 +19,8 @@ Entonces, ¿por qué forjar otra herramienta?
 
 Porque los otros anillos son **reactivos**: solo se sincronizan *mientras ves* un episodio. **The One** es **proactivo y mantiene estados**. Es un motor de migración masiva y recuperación ante desastres. Si tienes una cuenta de AnimeFLV de hace 10 años con 500 series vistas, MALSync no puede portar fácilmente todo tu historial a MyAnimeList o JKanime. *The One* extrae (scrapea), mapea de forma permanente y sincroniza las diferencias de toda tu biblioteca de vida entre plataformas en cuestión de segundos.
 
+Construí esto porque me enfrenté a este mismo problema y terminé programando (vibe-coding) una solución que se ajustaba perfectamente a mis necesidades. Si te encuentras atrapado en la misma pesadilla de sincronización multiplataforma, ¡siéntete libre de empuñar este script!
+
 ---
 
 ## 🌟 La Comunidad de las Características

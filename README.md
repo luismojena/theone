@@ -19,6 +19,8 @@ So why forge another tool?
 
 Because the other rings are **reactive**—they only sync *as you watch*. **The One** is **proactive and stateful**. It is a bulk-migration and disaster recovery engine. If you have a 10-year-old AnimeFLV account with 500 watched shows, MALSync cannot easily port your entire history over to MyAnimeList or JKanime. *The One* scrapes, permanently maps, and diff-syncs your entire lifetime library across platforms in seconds.
 
+I built this because I faced this exact problem and ended up vibe-coding my way into a solution that perfectly fits my needs. If you find yourself trapped in the same multi-platform syncing nightmare, feel free to wield this script!
+
 ---
 
 ## 🌟 The Fellowship of Features
