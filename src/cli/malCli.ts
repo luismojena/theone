@@ -70,6 +70,50 @@ export async function runExport() {
 	console.log(`Export complete: ${EXPORT_FILE}`);
 }
 
-export async function runResolve() {}
+export async function runResolve() {
+	console.log("--- Resolving missing MAL IDs ---");
+	const repo = new FileMappingRepository("./migrations/mappings.json");
+	const mappings = repo.loadMappings();
+	const malPlatform = new MALPlatform();
+
+	let resolvedCount = 0;
+	let missingCount = 0;
+
+	for (const key of Object.keys(mappings)) {
+		const entry = mappings[key];
+		if (!entry.mal_id || Number(entry.mal_id) === 0) {
+			missingCount++;
+			console.log(`\nSearching MAL for: "${entry.title}"...`);
+			try {
+				const results = await malPlatform.searchAnime(entry.title);
+				if (results.length > 0) {
+					const bestMatch = results[0];
+					console.log(`✅ Found match: "${bestMatch.title}" (ID: ${bestMatch.platform_id})`);
+					repo.setMapping(
+						entry.platform,
+						entry.platform_id,
+						Number(bestMatch.platform_id),
+						bestMatch.title,
+						entry,
+					);
+					resolvedCount++;
+				} else {
+					console.log(`❌ No results found on MAL.`);
+				}
+				// Sleep to avoid rate limits
+				await new Promise((r) => setTimeout(r, 1000));
+			} catch (err: unknown) {
+				const msg = err instanceof Error ? err.message : String(err);
+				console.error(`⚠️ Error searching for ${entry.title}:`, msg);
+			}
+		}
+	}
+
+	if (missingCount === 0) {
+		console.log("✅ All entries already have a valid MAL ID. Nothing to resolve!");
+	} else {
+		console.log(`\n✅ Resolved ${resolvedCount} out of ${missingCount} missing entries.`);
+	}
+}
 export async function runReview() {}
 export async function completeMALWatching() {}
