@@ -1,0 +1,9 @@
+echo "🔍 Scanning for leaked credentials..."
+docker run --rm -v "${PWD}:/path" zricethezav/gitleaks:latest protect --staged --source="/path" -v
+
+if [ $? -ne 0 ]; then
+    echo "❌ Gitleaks found potential secrets in your staged files! Commit aborted."
+    exit 1
+fi
+
+echo "✅ No credentials found!"
