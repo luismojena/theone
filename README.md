@@ -1,16 +1,16 @@
 # Anime Watchlist Migration & Sync Utility
 
-A modular Node.js command-line utility to scrape, map, and synchronize your anime watchlist across **AnimeFLV**, **MyAnimeList (MAL)**, and **JKAnime**.
+A modular, strongly-typed TypeScript Domain-Driven Design (DDD) command-line utility to scrape, map, and synchronize your anime watchlist across **AnimeFLV**, **MyAnimeList (MAL)**, **JKAnime**, and **AnimeAV1**.
 
 ---
 
 ## Features
 
-1. **AnimeFLV Profile Scraper**: Extracts followed anime titles, metadata, and covers from your profile.
-2. **MyAnimeList Resolver**: Automatically maps AnimeFLV titles to MAL IDs using cheerio parsing (to prevent Jikan rate-limiting blocks) and features an interactive terminal reviewer for unmatched items.
-3. **MyAnimeList XML Exporter**: Generates a standard MAL XML file ready to import at [https://myanimelist.net/import.php](https://myanimelist.net/import.php).
-4. **JKAnime Status Synchronizer**: Authenticates your JKanime session and marks mapped titles as "Watching" (with **autoskip** support for unattended bulk operations).
-5. **MAL List Completion Updater**: Decompresses your official MAL XML backup, queries Jikan API to find currently aired episodes for active/airing series, completes finished titles, and outputs an importable XML (with smart request caching).
+1. **Multi-Platform Support**: Pluggable architecture supporting AnimeFLV (scraper), MyAnimeList (MAL APIs & XML export), JKanime (sync), and AnimeAV1 (sync & reverse-import).
+2. **Canonical Mapping Engine**: Resolves and permanently maps different platform slugs to a canonical MyAnimeList (MAL) ID.
+3. **Smart Differential Sync**: Computes incremental state diffs (episodes watched, watch status) and synchronizes states specifically where they differ, saving API requests.
+4. **Self-Healing Type Guards**: Leverages strict TypeScript type guards to safely parse persistent JSON datasets and gracefully recover from runtime errors.
+5. **AnimeAV1 Mass Importer**: Reverse-engineers AnimeAV1 SvelteKit payloads to automatically map hundreds of titles autonomously.
 
 ---
 
@@ -27,82 +27,54 @@ A modular Node.js command-line utility to scrape, map, and synchronize your anim
    MAL_USER=your_mal_username
    JKANIME_USER=your_jkanime_username
    JKANIME_PASS=your_jkanime_password
+   ANIMEAV1_SESSION=your_animeav1_session_cookie
    ```
 
-All generated outputs, backups, and configuration states are stored in the `migrations/` directory. Secrets in `.env` are ignored by git via `.gitignore`.
+All generated outputs, backups, and configuration states are stored in the `migrations/` directory.
+
+---
+
+## Development Commands
+
+- `npm run build`: Compiles the strict TypeScript project to `dist/`.
+- `npm run lint`: Runs Biome linter across the repository.
+- `npm run format`: Auto-formats the codebase with Biome.
 
 ---
 
 ## CLI Usage
 
-The tool uses `theone.js` as the central entry-point command router.
+The tool uses `theone.ts` as the central entry-point command router. You can run it via `npx tsx theone.ts <command>` or build it and run `node dist/theone.js <command>`.
 
+### AnimeAV1 Commands
+
+#### 1. Fetch AnimeAV1 Watchlist
+Fetches and displays your live AnimeAV1 watchlist using the session cookie.
 ```bash
-node theone.js <command> [options]
+npx tsx theone.ts animeav1 fetch
 ```
 
-### Commands
-
-#### 1. Scrape AnimeFLV Profile
-Extracts all tracked anime from your AnimeFLV following profile:
+#### 2. Synchronize Watchlist to AnimeAV1
+Pushes your local truth database to AnimeAV1. Updates entries where the local episode count or status is ahead of the remote server.
 ```bash
-node theone.js scrape
-```
-* **Output**: `migrations/scraped.json`
-
-#### 2. Resolve MyAnimeList IDs
-Queries MAL to find database matches for all scraped titles:
-```bash
-node theone.js resolve
-```
-* **Output**: `migrations/resolved.json`
-
-#### 3. Review Ambiguous Matches
-Runs an interactive review terminal loop to manually assign MAL IDs for unmatched or low-confidence entries:
-```bash
-node theone.js review
-```
-* **Interactive options**: Select matching suggestions, search with custom queries, input manual MAL IDs, skip, or save and quit.
-
-#### 4. Fetch JKanime Watchlist States
-Logs into JKanime, fetches your saved watchlist cards and API lists, normalizes Spanish statuses (`Completado`, `Mirando`, etc.), and updates the persistent database:
-```bash
-node theone.js fetch-jkanime-list
+npx tsx theone.ts animeav1 sync
 ```
 
-#### 5. Synchronize Watchlist to JKanime
-Logs into JKanime and synchronizes your mapped shows using your live MyAnimeList watch states (**Tag 2 `Completado`** for completed shows, **Tag 1 `Mirando`** for watching shows):
+#### 3. Automated Import / Resolve
+Iterates through all locally tracked MAL IDs, queries AnimeAV1 for exact matches, and auto-resolves mapping IDs seamlessly.
 ```bash
-node theone.js sync-jkanime [--force] [--autoskip]
-```
-* **Zero-Prompt Bulk Mode**: Run `node theone.js sync-jkanime --force --autoskip` to automatically sync all shows hands-free using your `.env` credentials.
-
-#### 6. Export to MyAnimeList XML with Live Diff
-Queries your live MAL profile (`MAL_USER`), compares mapped titles against your live list, auto-resolves unmapped entries, and generates a MAL XML import file:
-```bash
-node theone.js export
-```
-* **Output**: `migrations/import.xml` (Upload this file at [https://myanimelist.net/import.php](https://myanimelist.net/import.php))
-
-#### 7. Create Watchlist Backup Archive
-Creates a timestamped snapshot backup of all platform watchlists, persistent mappings, and export files:
-```bash
-node theone.js backup
-```
-* **Output**: `migrations/backups/backup_<timestamp>/`
-
-#### 8. Inspect Persistent Mappings Store
-Inspects the permanent platform-to-MAL mappings database (`migrations/mappings.json`):
-```bash
-node theone.js mappings
+npx tsx theone.ts animeav1 import
 ```
 
-#### 9. Complete MAL Watching List (Bulk Modification)
-Completes all "Watching" anime in your MAL export backup:
-```bash
-node theone.js complete-watching
-```
+### Legacy Platform Commands
 
+* **`scrape`**: Extracts your AnimeFLV watchlist.
+* **`resolve`**: Maps AnimeFLV titles to MAL IDs.
+* **`review`**: Interactive CLI to manually resolve ambiguous anime mapping matches.
+* **`fetch-jkanime-list`**: Fetches current JKanime states.
+* **`sync-jkanime [--force] [--autoskip]`**: Pushes local states up to JKanime.
+* **`export`**: Dumps an importable MyAnimeList XML file.
+* **`complete-watching`**: Automatically marks finished/aired series as Completed on MAL.
 
 ---
 
@@ -110,31 +82,20 @@ node theone.js complete-watching
 
 ```
 ├── docs/                     # Documentation and Guides
-│   └── ARCHITECTURE.md       # Architecture & Platform Extensibility Guide
+│   └── ARCHITECTURE.md       # Architecture, DDD patterns, & Extensibility Guide
 ├── migrations/               # All generated databases, cache indexes, and export files
 │   ├── mappings.json         # Permanent platform-to-MAL mapping database
-│   ├── scraped.json          # Raw scraped list from AnimeFLV
-│   ├── resolved.json         # Title mappings and MAL IDs
-│   ├── import.xml            # Generated MAL XML list import
-│   ├── sync_jkanime.json     # JKanime sync progress status
-│   └── mal_jikan_cache.json  # Aired episodes details cache (24h fresh check)
-├── src/                      # Modular source code files
-│   ├── utils.js              # Helpers (sleep, normalizer, season extractors, prompts)
-│   ├── mapping.js            # Persistent platform-to-MAL mapping & diff engine
-│   ├── animeflv.js           # Scraper logic
-│   ├── mal.js                # MAL search, resolving, exports, and bulk list completion
-│   └── jkanime.js            # JKanime login, searching, detail scraping, and list sync
-├── tests/                    # Testing files
-│   ├── mapping.test.js       # Persistent mapping unit tests
-│   ├── integration.test.js   # HTTP fetch-mocked integration tests
-│   └── migration.test.js     # Normalizers, match scoring, and season parser unit tests
-├── tasks/                    # Task trackers
-│   ├── todo.md               # Feature checklist and status review
-│   └── lessons.md            # Self-improvement loop logs
-├── theone.js                # Main unified CLI router
-└── complete_watching.js      # Wrapper entrypoint for list completion
+│   └── import.xml            # Generated MAL XML list import
+├── src/                      # Modular, strongly-typed source code
+│   ├── cli/                  # CLI interaction layer (controllers)
+│   ├── core/                 # Abstract classes, decorators, domain entities, type guards
+│   ├── platforms/            # Concrete platform scraper/API adapters (Strategy Pattern)
+│   ├── repositories/         # Data persistence layer (FileMappingRepository)
+│   ├── services/             # Core business logic (PlatformImporterService, WatchlistSyncService)
+│   └── utils.ts              # Global helper functions
+├── tests/                    # Unit and integration tests
+└── theone.ts                 # Main CLI router
 ```
-
 
 ---
 
