@@ -15,10 +15,15 @@
 	"linter": {
 		"enabled": true,
 		"rules": {
-			"suspicious": {
-				"noExplicitAny": "off"
+			"preset": "recommended",
+			"style": {
+				"noNonNullAssertion": "off"
 			},
-			"preset": "recommended"
+			"suspicious": {
+				"noExplicitAny": "off",
+				"noImplicitAnyLet": "off",
+				"noAssignInExpressions": "off"
+			}
 		}
 	},
 	"javascript": {
