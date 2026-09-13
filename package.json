@@ -10,8 +10,8 @@
 		"lint": "biome lint .",
 		"format": "biome format --write .",
 		"build": "tsc",
-		"docs:serve": "cp README.md docs/index.md && docker run --rm -it -p 8000:8000 -v ${PWD}:/docs squidfunk/mkdocs-material:9.5.49",
-		"docs:build": "cp README.md docs/index.md && docker run --rm -it -v ${PWD}:/docs squidfunk/mkdocs-material:9.5.49 build"
+		"docs:serve": "cp README.md docs/index.md && cp README.es.md docs/index.es.md && docker run --rm -it -p 8000:8000 -v ${PWD}:/docs squidfunk/mkdocs-material:9.5.49",
+		"docs:build": "cp README.md docs/index.md && cp README.es.md docs/index.es.md && docker run --rm -it -v ${PWD}:/docs squidfunk/mkdocs-material:9.5.49 build"
 	},
 	"dependencies": {
 		"cheerio": "^1.0.0",

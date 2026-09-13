@@ -14,8 +14,12 @@ theme:
     - search.highlight
 
 nav:
-  - Home: index.md
-  - Architecture: ARCHITECTURE.md
+  - 🇺🇸 English:
+    - Home: index.md
+    - Architecture: ARCHITECTURE.md
+  - 🇪🇸 Español:
+    - Inicio: index.es.md
+    - Arquitectura: ARCHITECTURE.es.md
 
 markdown_extensions:
   - admonition

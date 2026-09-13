@@ -21,3 +21,4 @@ scratch_*.mjs
 dist/
 docs/index.md
 site/
+docs/index.es.md

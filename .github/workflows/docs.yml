@@ -31,6 +31,7 @@ jobs:
         run: |
           # Copy the root README.md to be the homepage of the docs
           cp README.md docs/index.md
+          cp README.es.md docs/index.es.md
 
       - name: Deploy to GitHub Pages
         run: mkdocs gh-deploy --force
