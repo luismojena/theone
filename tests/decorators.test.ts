@@ -63,7 +63,7 @@ test("Retry decorator throws WEBSITE_DOWN after max retries", async () => {
 	}
 
 	assert.ok(rejectedError);
-	assert.strictEqual((rejectedError as any).message, "WEBSITE_DOWN");
+	assert.strictEqual((rejectedError as Error).message, "WEBSITE_DOWN");
 	assert.strictEqual(platform.failCount, 3);
 
 	mock.timers.reset();

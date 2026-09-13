@@ -10,7 +10,7 @@ export class AnimeFLVPlatform extends IAnimePlatform {
 		return "animeflv";
 	}
 
-	async authenticate(credentials: any) {
+	async authenticate(credentials: Record<string, string>) {
 		if (!credentials.profileId) {
 			throw new Error('AnimeFLV requires a profileId (e.g. "PROW")');
 		}
@@ -29,14 +29,14 @@ export class AnimeFLVPlatform extends IAnimePlatform {
 			const url = `${baseUrl}?page=${page}`;
 			console.log(`Fetching AnimeFLV page ${page}...`);
 
-			let html;
+			let html = "";
 			try {
 				const res = await this.request(url, {});
 				if (!res.ok) break;
 
 				html = await res.text();
-			} catch (err: any) {
-				if (err.message === "WEBSITE_DOWN") {
+			} catch (err: unknown) {
+				if (err instanceof Error && err.message === "WEBSITE_DOWN") {
 					break; // Stop scraping, return what we have (if any) or bubble up.
 				}
 				throw err;
@@ -75,11 +75,11 @@ export class AnimeFLVPlatform extends IAnimePlatform {
 		return entries;
 	}
 
-	async updateEntryStatus(_entry: any) {
+	async updateEntryStatus(_entry: unknown) {
 		throw new Error("AnimeFLV does not support automated status updates.");
 	}
 
-	async searchAnime(_query: string): Promise<any[]> {
+	async searchAnime(_query: string): Promise<unknown[]> {
 		throw new Error("Search not implemented for AnimeFLV.");
 	}
 }

@@ -15,8 +15,8 @@ export async function runFetchAnimeAV1List() {
 	try {
 		await platform.authenticate({ session });
 		console.log("✅ Session validated!");
-	} catch (err: any) {
-		console.error("❌ Authentication failed:", err.message);
+	} catch (err: unknown) {
+		console.error("❌ Authentication failed:", (err as Error).message);
 		return;
 	}
 
@@ -63,8 +63,8 @@ export async function runSyncAnimeAV1() {
 
 	try {
 		await platform.authenticate({ session });
-	} catch (err: any) {
-		console.error("❌ Authentication failed:", err.message);
+	} catch (err: unknown) {
+		console.error("❌ Authentication failed:", (err as Error).message);
 		return;
 	}
 
@@ -113,9 +113,11 @@ export async function runSyncAnimeAV1() {
 	for (const entry of toUpdate) {
 		try {
 			console.log(`Syncing ${entry.title}...`);
-			await platform.updateEntryStatus(entry as any);
-		} catch (err: any) {
-			console.error(`❌ Failed to sync ${entry.title}: ${err.message}`);
+			await platform.updateEntryStatus(entry as unknown as WatchlistEntry);
+		} catch (err: unknown) {
+			console.error(
+				`❌ Failed to sync ${entry.title}: ${(err as Error).message}`,
+			);
 		}
 	}
 
@@ -134,8 +136,8 @@ export async function runImportAnimeAV1() {
 
 	try {
 		await platform.authenticate({ session });
-	} catch (err: any) {
-		console.error("❌ Authentication failed:", err.message);
+	} catch (err: unknown) {
+		console.error("❌ Authentication failed:", (err as Error).message);
 		return;
 	}
 

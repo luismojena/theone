@@ -6,7 +6,7 @@ export class AnimeAV1Platform extends IAnimePlatform {
 		return "animeav1";
 	}
 
-	async authenticate(credentials: any): Promise<void> {
+	async authenticate(credentials: Record<string, string>): Promise<void> {
 		if (!credentials.session) {
 			throw new Error('AnimeAV1 requires a session cookie (e.g. "x9QmL2-...")');
 		}
@@ -30,13 +30,15 @@ export class AnimeAV1Platform extends IAnimePlatform {
 		const objectRegex =
 			/\{userId:\d+,mediaId:(\d+),status:(\d+),episode:(\d+).*?slug:"([^"]+)",status:\d+,title:"([^"]+)"/g;
 
-		let match;
-		while ((match = objectRegex.exec(html)) !== null) {
-			const mediaId = match[1]!;
-			const statusNum = parseInt(match[2]!, 10);
-			const epsWatched = parseInt(match[3]!, 10);
-			const _slug = match[4]!;
-			const title = match[5]!;
+		let match: RegExpExecArray | null = null;
+		while (true) {
+			match = objectRegex.exec(html);
+			if (match === null) break;
+			const mediaId = match[1] || "";
+			const statusNum = parseInt(match[2] || "0", 10);
+			const epsWatched = parseInt(match[3] || "0", 10);
+			const _slug = match[4] || "";
+			const title = match[5] || "";
 
 			// Escape unicode or hex escapes if any
 			const cleanTitle = title.replace(/\\\\u[\dA-F]{4}/gi, (m) =>
@@ -116,24 +118,26 @@ export class AnimeAV1Platform extends IAnimePlatform {
 		}
 	}
 
-	async searchAnime(query: string): Promise<any[]> {
+	async searchAnime(query: string): Promise<unknown[]> {
 		if (!this.defaultHeaders.Cookie) throw new Error("Must authenticate first");
 
 		const url = `https://animeav1.com/catalogo?search=${encodeURIComponent(query)}`;
 		const res = await this.request(url);
 		const html = await res.text();
-		const results: any[] = [];
+		const results: unknown[] = [];
 
 		// The data is hydrated in the HTML inside a JSON block. We extract id, title, and slug.
 		const searchRegex = /\{id:"?(\d+)"?,title:"([^"]+)"[^}]*slug:"([^"]+)"/g;
 
-		let match;
+		let match: RegExpExecArray | null = null;
 		const seenIds = new Set<string>(); // Prevent duplicates
 
-		while ((match = searchRegex.exec(html)) !== null) {
-			const mediaId = match[1]!;
-			const title = match[2]!;
-			const slug = match[3]!;
+		while (true) {
+			match = searchRegex.exec(html);
+			if (match === null) break;
+			const mediaId = match[1] || "";
+			const title = match[2] || "";
+			const slug = match[3] || "";
 
 			// Escape unicode or hex escapes if any
 			const cleanTitle = title.replace(/\\\\u[\dA-F]{4}/gi, (m) =>

@@ -13,7 +13,7 @@ export function extractSeason(title: string) {
 	const match =
 		title.match(/(\d+)(st|nd|rd|th)?\s+season/i) ||
 		title.match(/season\s+(\d+)/i);
-	return match ? parseInt(match[1]!, 10) : 1;
+	return match ? parseInt(match[1] || "1", 10) : 1;
 }
 
 export function cleanBaseTitle(title: string) {
@@ -40,11 +40,11 @@ export function askQuestion(query: string): Promise<string> {
 	);
 }
 
-export function loadConfig(): Record<string, any> {
+export function loadConfig(): Record<string, unknown> {
 	return {};
 }
 
-export function saveConfig(_config: any) {}
+export function saveConfig(_config: unknown) {}
 
 export function normalizeJKAnimeStatus(statusStr: string) {
 	const low = statusStr.toLowerCase();

@@ -3,11 +3,11 @@ import type { FileMappingRepository } from "../repositories/FileMappingRepositor
 export class WatchlistSyncService {
 	constructor(public mappingRepository: FileMappingRepository) {}
 
-	computeIncrementalDiff(incomingEntries: any[]) {
+	computeIncrementalDiff(incomingEntries: Record<string, unknown>[]) {
 		const diff = {
-			newEntries: [] as any[],
-			modifiedEntries: [] as any[],
-			unchangedEntries: [] as any[],
+			newEntries: [] as Record<string, unknown>[],
+			modifiedEntries: [] as Record<string, unknown>[],
+			unchangedEntries: [] as Record<string, unknown>[],
 		};
 
 		for (const incoming of incomingEntries) {

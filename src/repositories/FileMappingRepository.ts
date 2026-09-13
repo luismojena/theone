@@ -10,7 +10,7 @@ export class FileMappingRepository {
 	 */
 	constructor(public filePath: string) {}
 
-	loadMappings(): Record<string, any> {
+	loadMappings(): Record<string, unknown> {
 		const dir = path.dirname(this.filePath);
 		if (!fs.existsSync(dir)) {
 			fs.mkdirSync(dir, { recursive: true });
@@ -26,7 +26,7 @@ export class FileMappingRepository {
 		return {};
 	}
 
-	saveMappings(mappings: Record<string, any>) {
+	saveMappings(mappings: Record<string, unknown>) {
 		fs.writeFileSync(this.filePath, JSON.stringify(mappings, null, 2), "utf8");
 	}
 
@@ -57,7 +57,7 @@ export class FileMappingRepository {
 		platformId: string,
 		malId: number | string,
 		malTitle: string,
-		extraData: any = {},
+		extraData: Record<string, unknown> = {},
 	) {
 		const mappings = this.loadMappings();
 		const key = `${platform}:${platformId}`;

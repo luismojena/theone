@@ -15,8 +15,8 @@ export async function runFetchJKAnimeList() {
 	try {
 		await platform.authenticate({ username, password });
 		console.log("✅ Logged in successfully!");
-	} catch (err: any) {
-		console.error("❌ Login failed:", err.message);
+	} catch (err: unknown) {
+		console.error("❌ Login failed:", (err as Error).message);
 		return;
 	}
 

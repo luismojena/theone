@@ -14,14 +14,14 @@ test("JKAnimePlatform authenticates and extracts cookies", async () => {
 
 	// Mock global fetch for this specific test
 	const originalFetch = global.fetch;
-	global.fetch = async (_url: any, _options: any) => {
+	global.fetch = async (_url: unknown, _options: unknown) => {
 		return {
 			ok: true,
 			json: async () => ({ error: 0 }),
 			headers: {
 				getSetCookie: () => ["test_cookie=123; path=/"],
 			},
-		} as any;
+		} as unknown as Response;
 	};
 
 	try {

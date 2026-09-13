@@ -4,17 +4,20 @@ import { sleep } from "../utils.js";
  * Modern Stage 3 Decorator for wrapping asynchronous platform methods with a retry loop.
  */
 export function Retry(maxRetries: number = 3) {
-	return (originalMethod: any, context: ClassMethodDecoratorContext) => {
+	return (
+		originalMethod: (...args: unknown[]) => unknown,
+		context: ClassMethodDecoratorContext,
+	) => {
 		if (context.kind !== "method")
 			throw new Error("Retry decorator can only be used on methods");
 
-		return async function replacementMethod(this: any, ...args: any[]) {
+		return async function replacementMethod(this: unknown, ...args: unknown[]) {
 			for (let attempt = 1; attempt <= maxRetries; attempt++) {
 				try {
 					return await originalMethod.apply(this, args);
-				} catch (err: any) {
+				} catch (err: unknown) {
 					console.warn(
-						`[${this.platformName || "System"}] Attempt ${attempt}/${maxRetries} network error: ${err.message}`,
+						`[${this.platformName || "System"}] Attempt ${attempt}/${maxRetries} network error: ${(err as Error).message}`,
 					);
 					if (attempt === maxRetries) {
 						console.error(

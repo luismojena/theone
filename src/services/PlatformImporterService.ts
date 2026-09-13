@@ -81,8 +81,11 @@ export class PlatformImporterService {
 				} else {
 					console.log(`❌ No results found on ${platformName}.`);
 				}
-			} catch (err: any) {
-				console.error(`⚠️ Search failed for "${searchTitle}":`, err.message);
+			} catch (err: unknown) {
+				console.error(
+					`⚠️ Search failed for "${searchTitle}":`,
+					(err as Error).message,
+				);
 			}
 		}
 

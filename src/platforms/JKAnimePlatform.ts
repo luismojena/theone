@@ -10,7 +10,7 @@ export class JKAnimePlatform extends IAnimePlatform {
 		return "jkanime";
 	}
 
-	async authenticate(credentials: any) {
+	async authenticate(credentials: Record<string, string>) {
 		if (!credentials.username || !credentials.password) {
 			throw new Error("JKAnime requires username and password");
 		}
@@ -119,7 +119,7 @@ export class JKAnimePlatform extends IAnimePlatform {
 		return []; // Fallback stub
 	}
 
-	async updateEntryStatus(entry: any) {
+	async updateEntryStatus(entry: unknown) {
 		if (!this.cookies)
 			throw new Error("Must authenticate before updating status");
 
@@ -169,7 +169,7 @@ export class JKAnimePlatform extends IAnimePlatform {
 		const res = await this.request(url);
 		const html = await res.text();
 		const $ = cheerio.load(html);
-		const results: any[] = [];
+		const results: unknown[] = [];
 
 		$(".anime__item").each((_idx, el) => {
 			const a = $(el).find("a").first();
