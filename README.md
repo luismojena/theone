@@ -49,38 +49,74 @@ The tool uses `theone.ts` as the central entry-point command router. You can cas
 
 ### ⚔️ AnimeAV1 Commands
 
-#### 1. Fetch AnimeAV1 Watchlist
+#### Fetch AnimeAV1 Watchlist
 Summons and displays your live AnimeAV1 watchlist using the session cookie.
 ```bash
 npx tsx theone.ts animeav1 fetch
 ```
 
-#### 2. Synchronize Watchlist to AnimeAV1
+#### Synchronize Watchlist to AnimeAV1
 Pushes your local truth database to AnimeAV1. Updates entries where the local episode count or status is ahead of the remote server.
 ```bash
 npx tsx theone.ts animeav1 sync
 ```
 
-#### 3. Automated Import / Resolve
+#### Automated Import / Resolve
 Iterates through all locally tracked MAL IDs, queries AnimeAV1 for exact matches, and auto-resolves mapping IDs seamlessly.
 ```bash
 npx tsx theone.ts animeav1 import
 ```
 
 ### 🗡️ AnimeFLV Commands
-* **`scrape`**: Plunders your AnimeFLV watchlist and saves it to local storage.
-* **`resolve`**: Maps all previously scraped AnimeFLV titles to their canonical MAL IDs.
+
+#### Scrape AnimeFLV Watchlist
+Plunders your AnimeFLV watchlist and saves it to local storage.
+```bash
+npx tsx theone.ts scrape
+```
+
+#### Resolve MAL IDs
+Maps all previously scraped AnimeFLV titles to their canonical MAL IDs.
+```bash
+npx tsx theone.ts resolve
+```
 
 ### 🥷 JKanime Commands
-* **`fetch-jkanime-list`**: Stealthily fetches your current JKanime states and caches them.
-* **`sync-jkanime [--force] [--autoskip]`**: Pushes your local watchlist states up to your live JKanime account. Use `--autoskip` to let the script run hands-free.
+
+#### Fetch JKanime States
+Stealthily fetches your current JKanime states and caches them.
+```bash
+npx tsx theone.ts fetch-jkanime-list
+```
+
+#### Synchronize Watchlist to JKanime
+Pushes your local watchlist states up to your live JKanime account. Use `--autoskip` to let the script run hands-free.
+```bash
+npx tsx theone.ts sync-jkanime --force --autoskip
+```
 
 ### 📖 MyAnimeList (MAL) Commands
-* **`export`**: Forges an importable XML file based on your mapped databases to upload directly to MAL.
-* **`complete-watching`**: Queries the Jikan API to automatically mark any currently "Watching" series that have finished airing as "Completed" on MAL.
+
+#### Export MAL XML
+Forges an importable XML file based on your mapped databases to upload directly to MAL.
+```bash
+npx tsx theone.ts export
+```
+
+#### Complete Airing Series
+Queries the Jikan API to automatically mark any currently "Watching" series that have finished airing as "Completed" on MAL.
+```bash
+npx tsx theone.ts complete-watching
+```
 
 ### 🧙‍♂️ Utility Commands
-* **`review`**: Interactive CLI wizard to manually assign MAL IDs for ambiguous matches (for when the AI is acting like a foolish Took).
+
+#### Interactive Match Review
+Interactive CLI wizard to manually assign MAL IDs for ambiguous matches (for when the AI is acting like a foolish Took).
+```bash
+npx tsx theone.ts review
+```
+
 
 ---
 
