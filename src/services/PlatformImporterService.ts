@@ -24,7 +24,10 @@ export class PlatformImporterService {
 		const mappedToPlatform = new Set<number | string>();
 
 		for (const key of Object.keys(allMappings)) {
-			const entry = allMappings[key];
+			const entry = allMappings[
+				key
+			] as import("../core/domain.js").MappingEntry;
+
 			if (!entry.mal_id) continue;
 
 			if (entry.platform === platformName) {
@@ -32,7 +35,7 @@ export class PlatformImporterService {
 			} else {
 				if (!malItems.has(entry.mal_id)) {
 					malItems.set(entry.mal_id, {
-						title: entry.mal_title,
+						title: entry.mal_title || "",
 						status:
 							entry.mal_status || entry.last_synced_status || "Plan to Watch",
 						episodes: entry.last_synced_episodes || 0,

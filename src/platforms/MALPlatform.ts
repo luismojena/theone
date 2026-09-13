@@ -93,7 +93,7 @@ export class MALPlatform extends IAnimePlatform {
 
 		const html = await res.text();
 		const $ = cheerio.load(html);
-		const results: unknown[] = [];
+		const results: import("../core/domain.js").SearchResult[] = [];
 
 		$("table tr").each((_idx, el) => {
 			const titleLink = $(el).find("div.title a.hoverinfo_trigger");
@@ -105,7 +105,7 @@ export class MALPlatform extends IAnimePlatform {
 			const malIdMatch = href.match(/\/anime\/(\d+)/);
 			if (malIdMatch) {
 				const mal_id = parseInt(malIdMatch[1] || "0", 10);
-				results.push({ mal_id, title, url: href });
+				results.push({ platform_id: String(mal_id), title, url: href });
 			}
 		});
 

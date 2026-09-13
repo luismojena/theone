@@ -31,13 +31,19 @@ export async function runFetchJKAnimeList() {
 		const malId = existingMapping ? existingMapping.mal_id : 0;
 		const malTitle = existingMapping ? existingMapping.mal_title : item.title;
 
-		repo.setMapping(item.platform, item.platformId, malId, malTitle, {
-			title: item.title,
-			platform_status: item.status,
-			mal_status: item.status,
-			last_synced_episodes: item.episodesWatched,
-			last_synced_status: item.status,
-		});
+		repo.setMapping(
+			item.platform,
+			item.platformId,
+			Number(malId),
+			malTitle || "",
+			{
+				title: item.title,
+				platform_status: item.status,
+				mal_status: item.status,
+				last_synced_episodes: item.episodesWatched,
+				last_synced_status: item.status,
+			},
+		);
 		updatedCount++;
 	}
 	console.log(

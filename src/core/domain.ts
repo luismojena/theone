@@ -29,3 +29,16 @@ export interface SearchResult {
 	title: string;
 	url?: string;
 }
+
+export interface MappingEntry {
+	platform?: string;
+	platform_id?: string;
+	mal_id?: number;
+	mal_title?: string;
+	mal_status?: string;
+	title?: string;
+	last_synced_episodes?: number;
+	last_synced_status?: string;
+	updated_at?: string;
+	[key: string]: unknown;
+}

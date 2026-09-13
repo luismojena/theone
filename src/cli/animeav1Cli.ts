@@ -80,9 +80,11 @@ export async function runSyncAnimeAV1() {
 	const toUpdate = [];
 
 	for (const key of Object.keys(allMappings)) {
-		const mapping = allMappings[key];
+		const mapping = allMappings[
+			key
+		] as import("../core/domain.js").MappingEntry;
 		if (mapping.platform === "animeav1") {
-			const remote = remoteMap.get(mapping.platform_id);
+			const remote = remoteMap.get(mapping.platform_id || "");
 
 			// If not on remote, or local status differs from remote (sync logic)
 			if (
@@ -113,7 +115,9 @@ export async function runSyncAnimeAV1() {
 	for (const entry of toUpdate) {
 		try {
 			console.log(`Syncing ${entry.title}...`);
-			await platform.updateEntryStatus(entry as unknown as WatchlistEntry);
+			await platform.updateEntryStatus(
+				entry as import("../core/domain.js").WatchlistEntry,
+			);
 		} catch (err: unknown) {
 			console.error(
 				`❌ Failed to sync ${entry.title}: ${(err as Error).message}`,

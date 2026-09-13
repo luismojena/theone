@@ -45,6 +45,6 @@ test("CLI parses jkanime sync options correctly", () => {
 	const syncCmd = jkanimeCmd?.commands.find((c) => c.name() === "sync");
 
 	const options = syncCmd?.options.map((o) => o.long);
-	assert.ok(options.includes("--autoskip"));
-	assert.ok(options.includes("--force"));
+	assert.ok(options!.includes("--autoskip"));
+	assert.ok(options!.includes("--force"));
 });

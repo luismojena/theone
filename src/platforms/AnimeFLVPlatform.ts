@@ -75,11 +75,13 @@ export class AnimeFLVPlatform extends IAnimePlatform {
 		return entries;
 	}
 
-	async updateEntryStatus(_entry: unknown) {
+	async updateEntryStatus(_entry: import("../core/domain.js").WatchlistEntry) {
 		throw new Error("AnimeFLV does not support automated status updates.");
 	}
 
-	async searchAnime(_query: string): Promise<unknown[]> {
+	async searchAnime(
+		_query: string,
+	): Promise<import("../core/domain.js").SearchResult[]> {
 		throw new Error("Search not implemented for AnimeFLV.");
 	}
 }

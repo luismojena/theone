@@ -25,7 +25,7 @@ export async function runExport() {
 			`Fetching live MyAnimeList watchlist for user "${username}"...`,
 		);
 		const platform = new MALPlatform();
-		await platform.authenticate({ username });
+		await platform.authenticate({ username: (username as string) || "" });
 		const entries = await platform.fetchWatchlist();
 		for (const entry of entries) {
 			liveMalMap.set(entry.malId, entry);

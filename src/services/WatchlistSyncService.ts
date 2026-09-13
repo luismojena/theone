@@ -3,11 +3,19 @@ import type { FileMappingRepository } from "../repositories/FileMappingRepositor
 export class WatchlistSyncService {
 	constructor(public mappingRepository: FileMappingRepository) {}
 
-	computeIncrementalDiff(incomingEntries: Record<string, unknown>[]) {
+	computeIncrementalDiff(
+		incomingEntries: import("../core/domain.js").WatchlistEntry[],
+	) {
 		const diff = {
-			newEntries: [] as Record<string, unknown>[],
-			modifiedEntries: [] as Record<string, unknown>[],
-			unchangedEntries: [] as Record<string, unknown>[],
+			newEntries: [] as import("../core/domain.js").WatchlistEntry[],
+			modifiedEntries: [] as {
+				entry: import("../core/domain.js").WatchlistEntry;
+				previous_episodes: number;
+				previous_status: string;
+				mal_id?: number;
+				mal_title?: string;
+			}[],
+			unchangedEntries: [] as import("../core/domain.js").WatchlistEntry[],
 		};
 
 		for (const incoming of incomingEntries) {
@@ -30,7 +38,7 @@ export class WatchlistSyncService {
 					diff.modifiedEntries.push({
 						entry: incoming,
 						previous_episodes: lastSyncedEps,
-						previous_status: lastSyncedStatus,
+						previous_status: lastSyncedStatus || "Watching",
 						mal_id: mapping.mal_id,
 						mal_title: mapping.mal_title,
 					});

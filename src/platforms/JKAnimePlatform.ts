@@ -119,7 +119,7 @@ export class JKAnimePlatform extends IAnimePlatform {
 		return []; // Fallback stub
 	}
 
-	async updateEntryStatus(entry: unknown) {
+	async updateEntryStatus(entry: import("../core/domain.js").WatchlistEntry) {
 		if (!this.cookies)
 			throw new Error("Must authenticate before updating status");
 
@@ -169,7 +169,7 @@ export class JKAnimePlatform extends IAnimePlatform {
 		const res = await this.request(url);
 		const html = await res.text();
 		const $ = cheerio.load(html);
-		const results: unknown[] = [];
+		const results: import("../core/domain.js").SearchResult[] = [];
 
 		$(".anime__item").each((_idx, el) => {
 			const a = $(el).find("a").first();
@@ -177,7 +177,7 @@ export class JKAnimePlatform extends IAnimePlatform {
 			if (!href) return;
 			const title =
 				$(el).find(".anime__item__text h5 a").text().trim() || a.text().trim();
-			results.push({ title, href });
+			results.push({ platform_id: href || "", title, url: href });
 		});
 
 		return results;

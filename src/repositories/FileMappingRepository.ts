@@ -10,7 +10,7 @@ export class FileMappingRepository {
 	 */
 	constructor(public filePath: string) {}
 
-	loadMappings(): Record<string, unknown> {
+	loadMappings(): Record<string, import("../core/domain.js").MappingEntry> {
 		const dir = path.dirname(this.filePath);
 		if (!fs.existsSync(dir)) {
 			fs.mkdirSync(dir, { recursive: true });
@@ -26,7 +26,9 @@ export class FileMappingRepository {
 		return {};
 	}
 
-	saveMappings(mappings: Record<string, unknown>) {
+	saveMappings(
+		mappings: Record<string, import("../core/domain.js").MappingEntry>,
+	) {
 		fs.writeFileSync(this.filePath, JSON.stringify(mappings, null, 2), "utf8");
 	}
 
@@ -57,7 +59,7 @@ export class FileMappingRepository {
 		platformId: string,
 		malId: number | string,
 		malTitle: string,
-		extraData: Record<string, unknown> = {},
+		extraData: Partial<import("../core/domain.js").MappingEntry> = {},
 	) {
 		const mappings = this.loadMappings();
 		const key = `${platform}:${platformId}`;
@@ -66,7 +68,7 @@ export class FileMappingRepository {
 			...(mappings[key] || {}),
 			platform,
 			platform_id: platformId,
-			mal_id: malId,
+			mal_id: Number(malId),
 			mal_title: malTitle,
 			...extraData,
 			updated_at: new Date().toISOString(),
