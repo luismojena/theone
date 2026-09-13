@@ -1,5 +1,5 @@
 import { Retry } from "./decorators.js";
-import type { WatchlistEntry, SearchResult } from "./domain.js";
+import type { SearchResult, WatchlistEntry } from "./domain.js";
 
 export abstract class IAnimePlatform {
 	public defaultHeaders: Record<string, string>;

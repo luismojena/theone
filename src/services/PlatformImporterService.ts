@@ -1,5 +1,5 @@
-import { isError } from "../core/typeGuards.js";
 import type { IAnimePlatform } from "../core/IAnimePlatform.js";
+import { isError } from "../core/typeGuards.js";
 import type { FileMappingRepository } from "../repositories/FileMappingRepository.js";
 import { cleanBaseTitle } from "../utils.js";
 

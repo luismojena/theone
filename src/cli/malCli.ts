@@ -1,4 +1,3 @@
-import { isError } from "../core/typeGuards.js";
 import fs from "node:fs";
 import { WatchStatus } from "../core/domain.js";
 import { MALPlatform } from "../platforms/MALPlatform.js";

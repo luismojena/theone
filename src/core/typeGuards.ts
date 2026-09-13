@@ -1,4 +1,4 @@
-import { MappingEntry, WatchlistEntry } from "./domain.js";
+import type { MappingEntry, WatchlistEntry } from "./domain.js";
 
 export function isError(err: unknown): err is Error {
 	return err instanceof Error;
