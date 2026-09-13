@@ -11,6 +11,14 @@
 
 Bienvenido a **The One** (`theone.ts`), la utilidad de línea de comandos (CLI) escrita en TypeScript, estrictamente tipada, ridículamente sobre-diseñada (Arquitectura DDD) y forjada en los fuegos del Monte del Destino (mi editor de código) para sincronizar sin problemas tus listas de anime entre **AnimeFLV**, **MyAnimeList (MAL)**, **JKAnime**, y **AnimeAV1**.
 
+## 💍 ¿Por Qué Forjar El Único? (Los Otros Anillos de Poder)
+
+Ya existen herramientas increíbles en el ecosistema del anime. **[MALSync](https://malsync.moe/)** es el rey indiscutible para rastrear episodios directamente en tu navegador mientras los ves. **[Taiga](https://taiga.moe/)** rastrea sin esfuerzo los archivos de video locales en VLC/mpv. **[Trackma](https://github.com/z411/trackma)** ofrece una excelente gestión manual de listas por CLI.
+
+Entonces, ¿por qué forjar otra herramienta?
+
+Porque los otros anillos son **reactivos**: solo se sincronizan *mientras ves* un episodio. **The One** es **proactivo y mantiene estados**. Es un motor de migración masiva y recuperación ante desastres. Si tienes una cuenta de AnimeFLV de hace 10 años con 500 series vistas, MALSync no puede portar fácilmente todo tu historial a MyAnimeList o JKanime. *The One* extrae (scrapea), mapea de forma permanente y sincroniza las diferencias de toda tu biblioteca de vida entre plataformas en cuestión de segundos.
+
 ---
 
 ## 🌟 La Comunidad de las Características

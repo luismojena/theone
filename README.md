@@ -11,6 +11,14 @@
 
 Welcome to **The One** (`theone.ts`), the ridiculously over-engineered, strictly-typed, Domain-Driven Design (DDD) TypeScript command-line utility forged in the fires of Mount Doom (my code editor) to seamlessly synchronize your anime watchlists across **AnimeFLV**, **MyAnimeList (MAL)**, **JKAnime**, and **AnimeAV1**.
 
+## 💍 Why Forge The One? (The Other Rings of Power)
+
+There are already incredible tools in the anime ecosystem. **[MALSync](https://malsync.moe/)** is the undisputed king of tracking episodes in your browser as you watch them. **[Taiga](https://taiga.moe/)** effortlessly tracks local VLC/mpv video files. **[Trackma](https://github.com/z411/trackma)** offers great manual CLI list management.
+
+So why forge another tool? 
+
+Because the other rings are **reactive**—they only sync *as you watch*. **The One** is **proactive and stateful**. It is a bulk-migration and disaster recovery engine. If you have a 10-year-old AnimeFLV account with 500 watched shows, MALSync cannot easily port your entire history over to MyAnimeList or JKanime. *The One* scrapes, permanently maps, and diff-syncs your entire lifetime library across platforms in seconds.
+
 ---
 
 ## 🌟 The Fellowship of Features
