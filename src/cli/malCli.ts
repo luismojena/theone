@@ -136,3 +136,72 @@ export async function runResolve() {
 }
 export async function runReview() {}
 export async function completeMALWatching() {}
+
+export async function runFetchMALList() {
+	console.log("--- Fetch Live MyAnimeList Database ---");
+	const platform = new MALPlatform();
+	const config = loadConfig();
+	let username = process.env.MAL_USER || config.mal_user;
+
+	if (!username) {
+		username = await askQuestion("Enter your MyAnimeList Username: ");
+		if (username) {
+			config.mal_user = username;
+			saveConfig(config);
+		}
+	}
+
+	console.log(`Querying MyAnimeList /load.json API for user "${username}"...`);
+	try {
+		await platform.authenticate({ username: (username as string) || "" });
+		const entries = await platform.fetchWatchlist();
+		console.log(`\n✅ Successfully fetched ${entries.length} live entries from MyAnimeList.`);
+
+		const repo = new FileMappingRepository("./migrations/mappings.json");
+		let newCount = 0;
+
+		for (const entry of entries) {
+			const malId = Number(entry.platformId);
+			const malTitle = entry.title;
+
+			// Try to find if we already mapped this MAL ID to a platform
+			let foundPlatform = "mal";
+			let foundPlatformId = malId.toString();
+			let existingEntry = null;
+
+			const mappings = repo.loadMappings();
+			for (const val of Object.values(mappings)) {
+				if (Number(val.mal_id) === malId) {
+					foundPlatform = val.platform || "mal";
+					foundPlatformId = val.platform_id || malId.toString();
+					existingEntry = val;
+					break;
+				}
+			}
+
+			if (!existingEntry) {
+				// If it's completely new, just save it as a native 'mal' entry so we don't lose it
+				repo.setMapping(foundPlatform, foundPlatformId, malId, malTitle, {
+					title: malTitle,
+					mal_status: entry.status,
+					platform_status: entry.status,
+					last_synced_episodes: entry.episodesWatched,
+					last_synced_status: entry.status,
+				});
+				newCount++;
+			} else {
+				// Update the existing entry with live MAL data
+				repo.setMapping(foundPlatform, foundPlatformId, malId, malTitle, {
+					...existingEntry,
+					mal_status: entry.status,
+				});
+			}
+		}
+		console.log(
+			`✅ Synchronized MAL statuses. Discovered ${newCount} completely new, unmapped MAL entries.`,
+		);
+	} catch (err: unknown) {
+		const msg = err instanceof Error ? err.message : String(err);
+		console.error(`❌ Failed to fetch MyAnimeList data:`, msg);
+	}
+}

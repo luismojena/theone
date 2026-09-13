@@ -12,6 +12,16 @@ export function buildCLI() {
 		.description("MyAnimeList Migration Utility (Modular) - DDD Edition")
 		.version("2.0.0");
 
+	program
+		.command("fix <platform> <platform_id>")
+		.description(
+			"Surgically fix a single entry by fetching live data from the platform (and MAL if linked)",
+		)
+		.action(async (platform, platformId) => {
+			const { runFixEntry } = await import("./src/cli/fixCli.js");
+			await runFixEntry(platform, platformId);
+		});
+
 	// --- System / DB Commands ---
 	const dbCmd = program.command("db").description("Database and system operations");
 	dbCmd
@@ -48,6 +58,14 @@ export function buildCLI() {
 		});
 
 	malCmd
+		.command("fetch")
+		.description("Fetch your live MyAnimeList database using the /load.json API")
+		.action(async () => {
+			const { runFetchMALList } = await import("./src/cli/malCli.js");
+			await runFetchMALList();
+		});
+
+	malCmd
 		.command("resolve")
 		.description("Resolve scraped titles to MyAnimeList IDs using Jikan API")
 		.action(async () => {
@@ -77,6 +95,7 @@ export function buildCLI() {
 		)
 		.option("--delay <ms>", "Base delay in milliseconds between requests", "200")
 		.option("--jitter <range>", "Jitter range in format low-high (e.g., 100-500)")
+		.option("--force", "Forcefully override existing database titles with API data")
 		.action(async (options) => {
 			await runFetchJKAnimeList(options);
 		});
