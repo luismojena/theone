@@ -6,7 +6,7 @@
 	"main": "theone.js",
 	"scripts": {
 		"start": "npx tsx theone.ts",
-		"test": "node --import tsx --test tests/*.ts",
+		"test": "node --import tsx --test tests/*.ts tests/*/*.ts",
 		"lint": "biome lint .",
 		"format": "biome format --write .",
 		"build": "tsc",
