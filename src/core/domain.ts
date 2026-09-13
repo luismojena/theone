@@ -23,3 +23,9 @@ export class WatchlistEntry {
 		public malId: number | null = null,
 	) {}
 }
+
+export interface SearchResult {
+	platform_id: string;
+	title: string;
+	url?: string;
+}

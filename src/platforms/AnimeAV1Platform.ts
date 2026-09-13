@@ -1,4 +1,8 @@
-import { WatchlistEntry, WatchStatus } from "../core/domain.js";
+import {
+	type SearchResult,
+	WatchlistEntry,
+	WatchStatus,
+} from "../core/domain.js";
 import { IAnimePlatform } from "../core/IAnimePlatform.js";
 
 export class AnimeAV1Platform extends IAnimePlatform {
@@ -118,37 +122,46 @@ export class AnimeAV1Platform extends IAnimePlatform {
 		}
 	}
 
-	async searchAnime(query: string): Promise<unknown[]> {
-		if (!this.defaultHeaders.Cookie) throw new Error("Must authenticate first");
-
-		const url = `https://animeav1.com/catalogo?search=${encodeURIComponent(query)}`;
-		const res = await this.request(url);
-		const html = await res.text();
-		const results: unknown[] = [];
-
-		// The data is hydrated in the HTML inside a JSON block. We extract id, title, and slug.
+	private extractSearchResults(html: string): [string, string, string][] {
 		const searchRegex = /\{id:"?(\d+)"?,title:"([^"]+)"[^}]*slug:"([^"]+)"/g;
-
+		const results: [string, string, string][] = [];
 		let match: RegExpExecArray | null = null;
-		const seenIds = new Set<string>(); // Prevent duplicates
 
 		while (true) {
 			match = searchRegex.exec(html);
 			if (match === null) break;
 			const mediaId = match[1] || "";
-			const title = match[2] || "";
+			let title = match[2] || "";
 			const slug = match[3] || "";
 
 			// Escape unicode or hex escapes if any
-			const cleanTitle = title.replace(/\\\\u[\dA-F]{4}/gi, (m) =>
-				String.fromCharCode(parseInt(m.replace(/\\\\u/g, ""), 16)),
+			title = title.replace(/\\u[\dA-F]{4}/gi, (m) =>
+				String.fromCharCode(parseInt(m.replace(/\\u/g, ""), 16)),
 			);
 
+			results.push([mediaId, title, slug]);
+		}
+
+		return results;
+	}
+
+	async searchAnime(query: string): Promise<SearchResult[]> {
+		if (!this.defaultHeaders.Cookie) throw new Error("Must authenticate first");
+
+		const url = `https://animeav1.com/catalogo?search=${encodeURIComponent(query)}`;
+		const res = await this.request(url);
+		const html = await res.text();
+		const results: SearchResult[] = [];
+
+		const matches = this.extractSearchResults(html);
+		const seenIds = new Set<string>(); // Prevent duplicates
+
+		for (const [mediaId, title, slug] of matches) {
 			if (!seenIds.has(mediaId)) {
 				seenIds.add(mediaId);
 				results.push({
 					platform_id: mediaId,
-					title: cleanTitle,
+					title,
 					url: `https://animeav1.com/media/${slug}`,
 				});
 			}

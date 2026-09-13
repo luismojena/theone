@@ -1,5 +1,5 @@
 import { Retry } from "./decorators.js";
-import type { WatchlistEntry } from "./domain.js";
+import type { WatchlistEntry, SearchResult } from "./domain.js";
 
 export abstract class IAnimePlatform {
 	public defaultHeaders: Record<string, string>;
@@ -36,5 +36,5 @@ export abstract class IAnimePlatform {
 	abstract authenticate(credentials: Record<string, string>): Promise<void>;
 	abstract fetchWatchlist(): Promise<WatchlistEntry[]>;
 	abstract updateEntryStatus(entry: WatchlistEntry): Promise<void>;
-	abstract searchAnime(query: string): Promise<unknown[]>;
+	abstract searchAnime(query: string): Promise<SearchResult[]>;
 }
