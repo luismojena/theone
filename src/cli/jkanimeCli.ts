@@ -3,7 +3,7 @@ import { JKAnimePlatform } from "../platforms/JKAnimePlatform.js";
 import { FileMappingRepository } from "../repositories/FileMappingRepository.js";
 import { askQuestion } from "../utils.js";
 
-export async function runFetchJKAnimeList() {
+export async function runFetchJKAnimeList(options: Record<string, string> = {}) {
 	console.log("--- Fetch JKanime Profile Watchlist States ---");
 	const platform = new JKAnimePlatform();
 	let username = process.env.JKANIME_USER;
@@ -22,7 +22,7 @@ export async function runFetchJKAnimeList() {
 	}
 
 	console.log(`Querying JKanime Watchlist API for user "${username}"...`);
-	const entries = await platform.fetchWatchlist();
+	const entries = await platform.fetchWatchlist(options);
 	console.log(`\nProcessing ${entries.length} unique watchlist entries...`);
 
 	const repo = new FileMappingRepository("./migrations/mappings.json");

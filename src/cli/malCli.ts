@@ -86,7 +86,25 @@ export async function runResolve() {
 			const searchTitle = entry.title || "";
 			console.log(`\nSearching MAL for: "${searchTitle}"...`);
 			try {
-				const results = await malPlatform.searchAnime(searchTitle);
+				let results = await malPlatform.searchAnime(searchTitle);
+
+				// If MAL fails to find it because of exact punctuation matching (like colons),
+				// strip special characters and retry.
+				if (results.length === 0) {
+					const strippedTitle = searchTitle
+						.replace(/[^a-zA-Z0-9 ]/g, " ")
+						.replace(/\s+/g, " ")
+						.trim();
+					if (strippedTitle !== searchTitle) {
+						results = await malPlatform.searchAnime(strippedTitle);
+					}
+					// FINAL FALLBACK: If title is totally corrupted in the DB, use the formatted slug
+					if (results.length === 0 && entry.platform_id) {
+						const slugTitle = entry.platform_id.replace(/-/g, " ");
+						results = await malPlatform.searchAnime(slugTitle);
+					}
+				}
+
 				if (results.length > 0) {
 					const bestMatch = results[0];
 					console.log(`✅ Found match: "${bestMatch.title}" (ID: ${bestMatch.platform_id})`);

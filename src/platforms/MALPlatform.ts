@@ -94,7 +94,7 @@ export class MALPlatform extends IAnimePlatform {
 		const results: import("../core/domain.js").SearchResult[] = [];
 
 		$("table tr").each((_idx, el) => {
-			const titleLink = $(el).find("div.title a.hoverinfo_trigger");
+			const titleLink = $(el).find("a.hoverinfo_trigger.fw-b").first();
 			if (titleLink.length === 0) return;
 			const title = titleLink.find("strong").text().trim() || titleLink.text().trim();
 			const href = titleLink.attr("href");

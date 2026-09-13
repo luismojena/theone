@@ -38,11 +38,11 @@ export class JKAnimePlatform extends IAnimePlatform {
 		this.username = credentials.username;
 	}
 
-	async fetchWatchlist() {
+	async fetchWatchlist(options: Record<string, string> = {}) {
 		if (!this.cookies || !this.username)
 			throw new Error("Must authenticate before fetching watchlist");
 
-		let uniqueItems = await this._fetchWatchlistAPI();
+		let uniqueItems = await this._fetchWatchlistAPI(options);
 
 		if (uniqueItems.length === 0) {
 			uniqueItems = await this._fetchWatchlistHTML();
@@ -60,7 +60,7 @@ export class JKAnimePlatform extends IAnimePlatform {
 		);
 	}
 
-	async _fetchWatchlistAPI() {
+	async _fetchWatchlistAPI(options: Record<string, string> = {}) {
 		const items = [];
 		const tagMap = {
 			"1": { mal_status: "Watching" },
@@ -70,6 +70,9 @@ export class JKAnimePlatform extends IAnimePlatform {
 			"5": { mal_status: "On-Hold" },
 			"6": { mal_status: "Dropped" },
 		};
+
+		const delayStr = options.delay !== undefined ? options.delay : "200";
+		const jitterStr = options.jitter;
 
 		for (const [tagId, statusInfo] of Object.entries(tagMap)) {
 			let page = 1;
@@ -89,6 +92,11 @@ export class JKAnimePlatform extends IAnimePlatform {
 				const json = await res.json();
 				lastPage = json.last_page || 1;
 
+				const itemsReturned = json.data && Array.isArray(json.data) ? json.data.length : 0;
+				console.log(
+					`[JKAnime API] POST api/animes?tag=${tagId}&p=${page} | Status: ${res.status} | Items: ${itemsReturned} | Total Pages: ${lastPage}`,
+				);
+
 				if (json.data && Array.isArray(json.data)) {
 					for (const rawItem of json.data) {
 						const info =
@@ -96,8 +104,13 @@ export class JKAnimePlatform extends IAnimePlatform {
 						const rawUrl = info.url || rawItem.url || "";
 						const slug = rawUrl.replace(/^https?:\/\/jkanime\.net\//, "").replace(/\//g, "");
 						if (slug) {
+							let title = info.title || rawItem.title || slug;
+							// If the scraped title is suspiciously short or looks like button text, fallback to the URL slug
+							if (title.length <= 15 && !title.includes(" ")) {
+								title = slug.replace(/-/g, " ");
+							}
 							items.push({
-								title: info.title || rawItem.title || slug,
+								title,
 								slug,
 								mal_status: statusInfo.mal_status,
 								episodesWatched: 0,
@@ -106,6 +119,27 @@ export class JKAnimePlatform extends IAnimePlatform {
 					}
 				}
 				page++;
+
+				if (delayStr !== undefined) {
+					const delayMs = parseInt(delayStr, 10);
+					let jitterLow = 0;
+					let jitterHigh = 100;
+
+					if (jitterStr) {
+						const parts = jitterStr.split("-");
+						if (parts.length === 2) {
+							jitterLow = parseInt(parts[0], 10);
+							jitterHigh = parseInt(parts[1], 10);
+						}
+					}
+
+					const jitterAmount = Math.floor(Math.random() * (jitterHigh - jitterLow + 1)) + jitterLow;
+					const sleepMs = delayMs + jitterAmount;
+					console.log(
+						`[Delay] Sleeping for ${sleepMs}ms (Base: ${delayMs}, Jitter: ${jitterAmount})`,
+					);
+					await new Promise((resolve) => setTimeout(resolve, sleepMs));
+				}
 			} while (page <= lastPage);
 		}
 		return items;

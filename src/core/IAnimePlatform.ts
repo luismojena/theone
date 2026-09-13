@@ -34,7 +34,7 @@ export abstract class IAnimePlatform {
 
 	abstract get platformName(): string;
 	abstract authenticate(credentials: Record<string, string>): Promise<void>;
-	abstract fetchWatchlist(): Promise<WatchlistEntry[]>;
+	abstract fetchWatchlist(options?: Record<string, string>): Promise<WatchlistEntry[]>;
 	abstract updateEntryStatus(entry: WatchlistEntry): Promise<void>;
 	abstract searchAnime(query: string): Promise<SearchResult[]>;
 }

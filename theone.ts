@@ -75,8 +75,10 @@ export function buildCLI() {
 		.description(
 			"Fetch tracked anime & watch statuses from JKanime user profile into mappings.json",
 		)
-		.action(async () => {
-			await runFetchJKAnimeList();
+		.option("--delay <ms>", "Base delay in milliseconds between requests", "200")
+		.option("--jitter <range>", "Jitter range in format low-high (e.g., 100-500)")
+		.action(async (options) => {
+			await runFetchJKAnimeList(options);
 		});
 
 	jkanimeCmd
