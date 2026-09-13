@@ -1,6 +1,6 @@
 import assert from "node:assert";
 import { test } from "node:test";
-import { buildCLI } from "../theone.js";
+import { buildCLI } from "../../theone.js";
 
 test("CLI structure defines main platform subcommands", () => {
 	const cli = buildCLI();
