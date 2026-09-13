@@ -25,23 +25,11 @@ test("WatchlistSyncService diffs incoming entries correctly", () => {
 
 	const incoming = [
 		// New entry
-		new WatchlistEntry(
-			"jkanime",
-			"one-piece",
-			"One Piece",
-			WatchStatus.WATCHING,
-			5,
-		),
+		new WatchlistEntry("jkanime", "one-piece", "One Piece", WatchStatus.WATCHING, 5),
 		// Modified entry (progressed from 10 to 12)
 		new WatchlistEntry("jkanime", "naruto", "Naruto", WatchStatus.WATCHING, 12),
 		// Unchanged entry
-		new WatchlistEntry(
-			"jkanime",
-			"bleach",
-			"Bleach",
-			WatchStatus.COMPLETED,
-			50,
-		),
+		new WatchlistEntry("jkanime", "bleach", "Bleach", WatchStatus.COMPLETED, 50),
 	];
 
 	const diff = syncService.computeIncrementalDiff(incoming);

@@ -9,15 +9,10 @@ export function isMappingEntry(obj: unknown): obj is MappingEntry {
 	const record = obj as Record<string, unknown>;
 
 	// We at least expect platform and platform_id to exist for it to be a valid map
-	return (
-		typeof record.platform === "string" &&
-		typeof record.platform_id === "string"
-	);
+	return typeof record.platform === "string" && typeof record.platform_id === "string";
 }
 
-export function isMappingRecord(
-	obj: unknown,
-): obj is Record<string, MappingEntry> {
+export function isMappingRecord(obj: unknown): obj is Record<string, MappingEntry> {
 	if (!obj || typeof obj !== "object") return false;
 	for (const key of Object.keys(obj)) {
 		if (!isMappingEntry((obj as Record<string, unknown>)[key])) {

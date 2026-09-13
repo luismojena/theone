@@ -77,9 +77,7 @@ export class MALPlatform extends IAnimePlatform {
 	async updateEntryStatus(_entry: unknown) {
 		// MAL currently uses XML export rather than direct API updates in this tool.
 		// However, if we implemented official MAL OAuth, we'd do a PUT/PATCH here.
-		throw new Error(
-			"MAL API update not directly implemented yet. Use XML export.",
-		);
+		throw new Error("MAL API update not directly implemented yet. Use XML export.");
 	}
 
 	async searchAnime(query: string) {
@@ -98,8 +96,7 @@ export class MALPlatform extends IAnimePlatform {
 		$("table tr").each((_idx, el) => {
 			const titleLink = $(el).find("div.title a.hoverinfo_trigger");
 			if (titleLink.length === 0) return;
-			const title =
-				titleLink.find("strong").text().trim() || titleLink.text().trim();
+			const title = titleLink.find("strong").text().trim() || titleLink.text().trim();
 			const href = titleLink.attr("href");
 			if (!href) return;
 			const malIdMatch = href.match(/\/anime\/(\d+)/);

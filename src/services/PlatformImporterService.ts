@@ -25,9 +25,7 @@ export class PlatformImporterService {
 		const mappedToPlatform = new Set<number | string>();
 
 		for (const key of Object.keys(allMappings)) {
-			const entry = allMappings[
-				key
-			] as import("../core/domain.js").MappingEntry;
+			const entry = allMappings[key] as import("../core/domain.js").MappingEntry;
 
 			if (!entry.mal_id) continue;
 
@@ -37,8 +35,7 @@ export class PlatformImporterService {
 				if (!malItems.has(entry.mal_id)) {
 					malItems.set(entry.mal_id, {
 						title: entry.mal_title || "",
-						status:
-							entry.mal_status || entry.last_synced_status || "Plan to Watch",
+						status: entry.mal_status || entry.last_synced_status || "Plan to Watch",
 						episodes: entry.last_synced_episodes || 0,
 					});
 				}
@@ -46,14 +43,10 @@ export class PlatformImporterService {
 		}
 
 		// 2. Find entries that need mapping
-		const toMap = Array.from(malItems.entries()).filter(
-			([malId]) => !mappedToPlatform.has(malId),
-		);
+		const toMap = Array.from(malItems.entries()).filter(([malId]) => !mappedToPlatform.has(malId));
 		let mappedCount = 0;
 
-		console.log(
-			`Found ${toMap.length} unmapped MAL entries for platform '${platformName}'.`,
-		);
+		console.log(`Found ${toMap.length} unmapped MAL entries for platform '${platformName}'.`);
 
 		// 3. Search and map
 		for (const [malId, data] of toMap) {
@@ -65,22 +58,14 @@ export class PlatformImporterService {
 				if (results.length > 0) {
 					// Auto-pick the first result for this headless importer
 					const bestMatch = results[0];
-					console.log(
-						`✅ Found match: "${bestMatch.title}" (ID: ${bestMatch.platform_id})`,
-					);
+					console.log(`✅ Found match: "${bestMatch.title}" (ID: ${bestMatch.platform_id})`);
 
-					this.repository.setMapping(
-						platformName,
-						bestMatch.platform_id,
-						malId,
-						data.title,
-						{
-							title: bestMatch.title,
-							mal_status: data.status, // Copy the known status
-							last_synced_episodes: 0, // 0 means it will be pushed on next sync
-							last_synced_status: "Plan to Watch", // Default dummy state so diff engine detects a change
-						},
-					);
+					this.repository.setMapping(platformName, bestMatch.platform_id, malId, data.title, {
+						title: bestMatch.title,
+						mal_status: data.status, // Copy the known status
+						last_synced_episodes: 0, // 0 means it will be pushed on next sync
+						last_synced_status: "Plan to Watch", // Default dummy state so diff engine detects a change
+					});
 					mappedCount++;
 				} else {
 					console.log(`❌ No results found on ${platformName}.`);

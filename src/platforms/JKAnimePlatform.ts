@@ -92,13 +92,9 @@ export class JKAnimePlatform extends IAnimePlatform {
 				if (json.data && Array.isArray(json.data)) {
 					for (const rawItem of json.data) {
 						const info =
-							typeof rawItem.info === "string"
-								? JSON.parse(rawItem.info)
-								: rawItem.info || {};
+							typeof rawItem.info === "string" ? JSON.parse(rawItem.info) : rawItem.info || {};
 						const rawUrl = info.url || rawItem.url || "";
-						const slug = rawUrl
-							.replace(/^https?:\/\/jkanime\.net\//, "")
-							.replace(/\//g, "");
+						const slug = rawUrl.replace(/^https?:\/\/jkanime\.net\//, "").replace(/\//g, "");
 						if (slug) {
 							items.push({
 								title: info.title || rawItem.title || slug,
@@ -120,8 +116,7 @@ export class JKAnimePlatform extends IAnimePlatform {
 	}
 
 	async updateEntryStatus(entry: import("../core/domain.js").WatchlistEntry) {
-		if (!this.cookies)
-			throw new Error("Must authenticate before updating status");
+		if (!this.cookies) throw new Error("Must authenticate before updating status");
 
 		// Fetch details
 		const href = `https://jkanime.net/${entry.platformId}/`;
@@ -149,16 +144,13 @@ export class JKAnimePlatform extends IAnimePlatform {
 			tag: tagId.toString(),
 		});
 
-		const updateRes = await this.request(
-			"https://login.jkanime.net/api/guardar_anime",
-			{
-				method: "POST",
-				headers: {
-					"Content-Type": "application/x-www-form-urlencoded",
-				},
-				body: payload.toString(),
+		const updateRes = await this.request("https://login.jkanime.net/api/guardar_anime", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/x-www-form-urlencoded",
 			},
-		);
+			body: payload.toString(),
+		});
 
 		const data = await updateRes.json();
 		if (data === "token") throw new Error("Session expired");
@@ -175,8 +167,7 @@ export class JKAnimePlatform extends IAnimePlatform {
 			const a = $(el).find("a").first();
 			const href = a.attr("href");
 			if (!href) return;
-			const title =
-				$(el).find(".anime__item__text h5 a").text().trim() || a.text().trim();
+			const title = $(el).find(".anime__item__text h5 a").text().trim() || a.text().trim();
 			results.push({ platform_id: href || "", title, url: href });
 		});
 

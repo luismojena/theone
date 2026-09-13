@@ -32,9 +32,7 @@ export class FileMappingRepository {
 		return {};
 	}
 
-	saveMappings(
-		mappings: Record<string, import("../core/domain.js").MappingEntry>,
-	) {
+	saveMappings(mappings: Record<string, import("../core/domain.js").MappingEntry>) {
 		fs.writeFileSync(this.filePath, JSON.stringify(mappings, null, 2), "utf8");
 	}
 

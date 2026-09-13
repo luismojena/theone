@@ -1,8 +1,7 @@
 import fs from "node:fs";
 import readline from "node:readline";
 
-export const sleep = (ms: number) =>
-	new Promise((resolve) => setTimeout(resolve, ms));
+export const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export function normalize(str: string) {
 	if (!str) return "";
@@ -10,9 +9,7 @@ export function normalize(str: string) {
 }
 
 export function extractSeason(title: string) {
-	const match =
-		title.match(/(\d+)(st|nd|rd|th)?\s+season/i) ||
-		title.match(/season\s+(\d+)/i);
+	const match = title.match(/(\d+)(st|nd|rd|th)?\s+season/i) || title.match(/season\s+(\d+)/i);
 	return match ? parseInt(match[1] || "1", 10) : 1;
 }
 

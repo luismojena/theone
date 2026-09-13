@@ -18,8 +18,7 @@ export class AnimeFLVPlatform extends IAnimePlatform {
 	}
 
 	async fetchWatchlist() {
-		if (!this.profileId)
-			throw new Error("Must authenticate with profileId first");
+		if (!this.profileId) throw new Error("Must authenticate with profileId first");
 
 		let page = 1;
 		const entries: WatchlistEntry[] = [];
@@ -56,15 +55,7 @@ export class AnimeFLVPlatform extends IAnimePlatform {
 				const slug = href ? href.replace(/^\/anime\//, "") : "";
 
 				if (slug) {
-					entries.push(
-						new WatchlistEntry(
-							this.platformName,
-							slug,
-							title,
-							WatchStatus.WATCHING,
-							0,
-						),
-					);
+					entries.push(new WatchlistEntry(this.platformName, slug, title, WatchStatus.WATCHING, 0));
 				}
 			});
 
@@ -79,9 +70,7 @@ export class AnimeFLVPlatform extends IAnimePlatform {
 		throw new Error("AnimeFLV does not support automated status updates.");
 	}
 
-	async searchAnime(
-		_query: string,
-	): Promise<import("../core/domain.js").SearchResult[]> {
+	async searchAnime(_query: string): Promise<import("../core/domain.js").SearchResult[]> {
 		throw new Error("Search not implemented for AnimeFLV.");
 	}
 }

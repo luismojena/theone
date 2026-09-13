@@ -3,9 +3,7 @@ import type { FileMappingRepository } from "../repositories/FileMappingRepositor
 export class WatchlistSyncService {
 	constructor(public mappingRepository: FileMappingRepository) {}
 
-	computeIncrementalDiff(
-		incomingEntries: import("../core/domain.js").WatchlistEntry[],
-	) {
+	computeIncrementalDiff(incomingEntries: import("../core/domain.js").WatchlistEntry[]) {
 		const diff = {
 			newEntries: [] as import("../core/domain.js").WatchlistEntry[],
 			modifiedEntries: [] as {
@@ -19,22 +17,15 @@ export class WatchlistSyncService {
 		};
 
 		for (const incoming of incomingEntries) {
-			const mapping = this.mappingRepository.getMapping(
-				incoming.platform,
-				incoming.platformId,
-			);
+			const mapping = this.mappingRepository.getMapping(incoming.platform, incoming.platformId);
 
 			if (!mapping) {
 				diff.newEntries.push(incoming);
 			} else {
 				const lastSyncedEps = mapping.last_synced_episodes || 0;
-				const lastSyncedStatus =
-					mapping.last_synced_status || mapping.mal_status;
+				const lastSyncedStatus = mapping.last_synced_status || mapping.mal_status;
 
-				if (
-					incoming.episodesWatched > lastSyncedEps ||
-					incoming.status !== lastSyncedStatus
-				) {
+				if (incoming.episodesWatched > lastSyncedEps || incoming.status !== lastSyncedStatus) {
 					diff.modifiedEntries.push({
 						entry: incoming,
 						previous_episodes: lastSyncedEps,

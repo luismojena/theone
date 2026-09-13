@@ -1,8 +1,4 @@
-import {
-	type SearchResult,
-	WatchlistEntry,
-	WatchStatus,
-} from "../core/domain.js";
+import { type SearchResult, WatchlistEntry, WatchStatus } from "../core/domain.js";
 import { IAnimePlatform } from "../core/IAnimePlatform.js";
 
 export class AnimeAV1Platform extends IAnimePlatform {
@@ -116,9 +112,7 @@ export class AnimeAV1Platform extends IAnimePlatform {
 		});
 
 		if (!res.ok) {
-			throw new Error(
-				`Failed to update ${entry.title} on AnimeAV1. HTTP ${res.status}`,
-			);
+			throw new Error(`Failed to update ${entry.title} on AnimeAV1. HTTP ${res.status}`);
 		}
 	}
 

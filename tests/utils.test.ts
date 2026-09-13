@@ -1,17 +1,9 @@
 import assert from "node:assert";
 import { test } from "node:test";
-import {
-	cleanBaseTitle,
-	extractSeason,
-	normalize,
-	normalizeJKAnimeStatus,
-} from "../src/utils.js";
+import { cleanBaseTitle, extractSeason, normalize, normalizeJKAnimeStatus } from "../src/utils.js";
 
 test("normalize strings correctly", () => {
-	assert.strictEqual(
-		normalize("Attack on Titan: Season 2!"),
-		"attackontitanseason2",
-	);
+	assert.strictEqual(normalize("Attack on Titan: Season 2!"), "attackontitanseason2");
 	assert.strictEqual(normalize(""), "");
 });
 
@@ -22,10 +14,7 @@ test("extractSeason parses title formats", () => {
 });
 
 test("cleanBaseTitle strips extra qualifiers", () => {
-	assert.strictEqual(
-		cleanBaseTitle("Boku no Hero Academia 2nd Season"),
-		"Boku no Hero Academia",
-	);
+	assert.strictEqual(cleanBaseTitle("Boku no Hero Academia 2nd Season"), "Boku no Hero Academia");
 	assert.strictEqual(cleanBaseTitle("Spy x Family Part 2"), "Spy x Family");
 	assert.strictEqual(cleanBaseTitle("Bleach - Sennen Kessen-hen"), "Bleach");
 	assert.strictEqual(cleanBaseTitle("Naruto: Shippuden"), "Naruto");

@@ -1,12 +1,7 @@
 import "dotenv/config";
 import { Command } from "commander";
 import { runFetchJKAnimeList, runSyncJKAnime } from "./src/cli/jkanimeCli.js";
-import {
-	completeMALWatching,
-	runExport,
-	runResolve,
-	runReview,
-} from "./src/cli/malCli.js"; // From old complete_watching.js wrapper
+import { completeMALWatching, runExport, runResolve, runReview } from "./src/cli/malCli.js"; // From old complete_watching.js wrapper
 import { FileMappingRepository } from "./src/repositories/FileMappingRepository.js";
 import { runBackup } from "./src/services/BackupService.js";
 
@@ -18,9 +13,7 @@ export function buildCLI() {
 		.version("2.0.0");
 
 	// --- System / DB Commands ---
-	const dbCmd = program
-		.command("db")
-		.description("Database and system operations");
+	const dbCmd = program.command("db").description("Database and system operations");
 	dbCmd
 		.command("inspect")
 		.description("Inspect the persistent platform-to-MAL mappings store")
@@ -28,25 +21,19 @@ export function buildCLI() {
 			const repo = new FileMappingRepository("./migrations/mappings.json");
 			const m = repo.loadMappings();
 			const count = Object.keys(m).length;
-			console.log(
-				`\nPersistent Mapping Store (${count} total entries mapped):`,
-			);
+			console.log(`\nPersistent Mapping Store (${count} total entries mapped):`);
 			console.log(`- File location: migrations/mappings.json`);
 			console.log(`- Sample entries:`);
 			Object.entries(m)
 				.slice(0, 5)
 				.forEach(([key, val]) => {
-					console.log(
-						`  * ${key} => MAL ID ${val.mal_id} ("${val.mal_title}")`,
-					);
+					console.log(`  * ${key} => MAL ID ${val.mal_id} ("${val.mal_title}")`);
 				});
 		});
 
 	dbCmd
 		.command("backup")
-		.description(
-			"Create a timestamped backup of all watchlist data and mapping stores",
-		)
+		.description("Create a timestamped backup of all watchlist data and mapping stores")
 		.action(async () => {
 			await runBackup();
 		});
@@ -69,26 +56,20 @@ export function buildCLI() {
 
 	malCmd
 		.command("review")
-		.description(
-			"Interactively review and manually resolve unmatched/ambiguous entries",
-		)
+		.description("Interactively review and manually resolve unmatched/ambiguous entries")
 		.action(async () => {
 			await runReview();
 		});
 
 	malCmd
 		.command("complete")
-		.description(
-			"Read your MAL export file, search Jikan, and complete currently watching entries",
-		)
+		.description("Read your MAL export file, search Jikan, and complete currently watching entries")
 		.action(async () => {
 			await completeMALWatching();
 		});
 
 	// --- JKanime Commands ---
-	const jkanimeCmd = program
-		.command("jkanime")
-		.description("JKanime operations");
+	const jkanimeCmd = program.command("jkanime").description("JKanime operations");
 	jkanimeCmd
 		.command("fetch")
 		.description(
@@ -114,39 +95,27 @@ export function buildCLI() {
 		});
 
 	// --- AnimeFLV Commands ---
-	const animeflvCmd = program
-		.command("animeflv")
-		.description("AnimeFLV operations");
+	const animeflvCmd = program.command("animeflv").description("AnimeFLV operations");
 	animeflvCmd
 		.command("scrape")
 		.description("Scrape AnimeFLV profile pages to scraped.json")
 		.action(async () => {
-			const { AnimeFLVPlatform } = await import(
-				"./src/platforms/AnimeFLVPlatform.js"
-			);
+			const { AnimeFLVPlatform } = await import("./src/platforms/AnimeFLVPlatform.js");
 			const platform = new AnimeFLVPlatform();
 			const profileId = process.env.ANIMEFLV_USER;
-			if (!profileId)
-				throw new Error("ANIMEFLV_USER environment variable is required");
+			if (!profileId) throw new Error("ANIMEFLV_USER environment variable is required");
 			await platform.authenticate({ profileId });
 
 			const entries = await platform.fetchWatchlist();
 			if (entries.length > 0) {
 				const fs = await import("node:fs");
-				fs.writeFileSync(
-					"./migrations/scraped.json",
-					JSON.stringify(entries, null, 2),
-				);
-				console.log(
-					`Scraping complete. Saved ${entries.length} items to scraped.json.`,
-				);
+				fs.writeFileSync("./migrations/scraped.json", JSON.stringify(entries, null, 2));
+				console.log(`Scraping complete. Saved ${entries.length} items to scraped.json.`);
 			}
 		});
 
 	// --- AnimeAV1 Commands ---
-	const animeav1Cmd = program
-		.command("animeav1")
-		.description("AnimeAV1 operations");
+	const animeav1Cmd = program.command("animeav1").description("AnimeAV1 operations");
 	animeav1Cmd
 		.command("fetch")
 		.description(
@@ -159,9 +128,7 @@ export function buildCLI() {
 
 	animeav1Cmd
 		.command("sync")
-		.description(
-			"Sync watching status of matched resolved list to animeav1.com",
-		)
+		.description("Sync watching status of matched resolved list to animeav1.com")
 		.action(async () => {
 			const { runSyncAnimeAV1 } = await import("./src/cli/animeav1Cli.js");
 			await runSyncAnimeAV1();
@@ -169,9 +136,7 @@ export function buildCLI() {
 
 	animeav1Cmd
 		.command("import")
-		.description(
-			"Automated migration: search and map unmapped MAL entries to AnimeAV1",
-		)
+		.description("Automated migration: search and map unmapped MAL entries to AnimeAV1")
 		.action(async () => {
 			const { runImportAnimeAV1 } = await import("./src/cli/animeav1Cli.js");
 			await runImportAnimeAV1();
@@ -183,8 +148,7 @@ export function buildCLI() {
 // Only execute if this file is run directly
 if (
 	process.argv[1] &&
-	(process.argv[1].endsWith("theone.js") ||
-		process.argv[1].endsWith("theone.ts"))
+	(process.argv[1].endsWith("theone.js") || process.argv[1].endsWith("theone.ts"))
 ) {
 	const cli = buildCLI();
 	cli.parseAsync(process.argv).catch((err) => {
