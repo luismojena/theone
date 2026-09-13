@@ -10,9 +10,8 @@
 		"lint": "biome lint .",
 		"format": "biome format --write .",
 		"build": "tsc",
-		"docs:install": "pip install mkdocs-material",
-		"docs:serve": "cp README.md docs/index.md && mkdocs serve",
-		"docs:build": "cp README.md docs/index.md && mkdocs build"
+		"docs:serve": "cp README.md docs/index.md && docker run --rm -it -p 8000:8000 -v ${PWD}:/docs squidfunk/mkdocs-material",
+		"docs:build": "cp README.md docs/index.md && docker run --rm -it -v ${PWD}:/docs squidfunk/mkdocs-material build"
 	},
 	"dependencies": {
 		"cheerio": "^1.0.0",
