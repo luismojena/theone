@@ -1,3 +1,5 @@
+import { WatchlistEntry } from "../core/domain.js";
+import { isError } from "../core/typeGuards.js";
 import { AnimeAV1Platform } from "../platforms/AnimeAV1Platform.js";
 import { FileMappingRepository } from "../repositories/FileMappingRepository.js";
 
@@ -16,7 +18,10 @@ export async function runFetchAnimeAV1List() {
 		await platform.authenticate({ session });
 		console.log("✅ Session validated!");
 	} catch (err: unknown) {
-		console.error("❌ Authentication failed:", (err as Error).message);
+		console.error(
+			"❌ Authentication failed:",
+			isError(err) ? err.message : String(err),
+		);
 		return;
 	}
 
@@ -64,7 +69,10 @@ export async function runSyncAnimeAV1() {
 	try {
 		await platform.authenticate({ session });
 	} catch (err: unknown) {
-		console.error("❌ Authentication failed:", (err as Error).message);
+		console.error(
+			"❌ Authentication failed:",
+			isError(err) ? err.message : String(err),
+		);
 		return;
 	}
 
@@ -93,12 +101,16 @@ export async function runSyncAnimeAV1() {
 				remote.episodesWatched !== (mapping.last_synced_episodes || 0)
 			) {
 				// Construct entry to push
-				toUpdate.push({
-					platformId: mapping.platform_id,
-					title: mapping.title,
-					episodesWatched: mapping.last_synced_episodes || 0,
-					status: mapping.mal_status || "Plan to Watch",
-				});
+				toUpdate.push(
+					new WatchlistEntry(
+						"animeav1",
+						mapping.platform_id || "",
+						mapping.title || "",
+						mapping.mal_status || "Plan to Watch",
+						mapping.last_synced_episodes || 0,
+						mapping.mal_id || null,
+					),
+				);
 			}
 		}
 	}
@@ -115,12 +127,10 @@ export async function runSyncAnimeAV1() {
 	for (const entry of toUpdate) {
 		try {
 			console.log(`Syncing ${entry.title}...`);
-			await platform.updateEntryStatus(
-				entry as import("../core/domain.js").WatchlistEntry,
-			);
+			await platform.updateEntryStatus(entry);
 		} catch (err: unknown) {
 			console.error(
-				`❌ Failed to sync ${entry.title}: ${(err as Error).message}`,
+				`❌ Failed to sync ${entry.title}: ${isError(err) ? err.message : String(err)}`,
 			);
 		}
 	}
@@ -141,7 +151,10 @@ export async function runImportAnimeAV1() {
 	try {
 		await platform.authenticate({ session });
 	} catch (err: unknown) {
-		console.error("❌ Authentication failed:", (err as Error).message);
+		console.error(
+			"❌ Authentication failed:",
+			isError(err) ? err.message : String(err),
+		);
 		return;
 	}
 

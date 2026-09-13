@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { isMappingRecord } from "../core/typeGuards.js";
 
 /**
  * Repository handling persistent storage of Platform ID to MAL ID mappings.
@@ -18,7 +19,12 @@ export class FileMappingRepository {
 
 		if (fs.existsSync(this.filePath)) {
 			try {
-				return JSON.parse(fs.readFileSync(this.filePath, "utf8"));
+				const data = JSON.parse(fs.readFileSync(this.filePath, "utf8"));
+				if (isMappingRecord(data)) {
+					return data;
+				} else {
+					console.warn("Invalid mapping structure detected, starting fresh.");
+				}
 			} catch (err) {
 				console.warn(`Could not parse ${this.filePath}, starting fresh.`, err);
 			}

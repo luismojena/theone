@@ -1,3 +1,4 @@
+import { isError } from "../core/typeGuards.js";
 import { JKAnimePlatform } from "../platforms/JKAnimePlatform.js";
 import { FileMappingRepository } from "../repositories/FileMappingRepository.js";
 import { askQuestion } from "../utils.js";
@@ -16,7 +17,7 @@ export async function runFetchJKAnimeList() {
 		await platform.authenticate({ username, password });
 		console.log("✅ Logged in successfully!");
 	} catch (err: unknown) {
-		console.error("❌ Login failed:", (err as Error).message);
+		console.error("❌ Login failed:", isError(err) ? err.message : String(err));
 		return;
 	}
 

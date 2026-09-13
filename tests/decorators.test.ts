@@ -1,3 +1,4 @@
+import { isError } from "../src/core/typeGuards.js";
 import assert from "node:assert";
 import { mock, test } from "node:test";
 import { Retry } from "../src/core/decorators.js";

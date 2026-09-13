@@ -1,3 +1,4 @@
+import { isError } from "../core/typeGuards.js";
 import type { IAnimePlatform } from "../core/IAnimePlatform.js";
 import type { FileMappingRepository } from "../repositories/FileMappingRepository.js";
 import { cleanBaseTitle } from "../utils.js";
@@ -87,7 +88,7 @@ export class PlatformImporterService {
 			} catch (err: unknown) {
 				console.error(
 					`⚠️ Search failed for "${searchTitle}":`,
-					(err as Error).message,
+					isError(err) ? err.message : String(err),
 				);
 			}
 		}

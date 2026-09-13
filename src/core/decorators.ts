@@ -1,3 +1,4 @@
+import { isError } from "./typeGuards.js";
 // biome-ignore lint/suspicious/noExplicitAny: Required for TS decorators
 // biome-ignore lint/complexity/noBannedTypes: Function required for decorator
 import { sleep } from "../utils.js";
@@ -16,7 +17,7 @@ export function Retry(maxRetries: number = 3) {
 					return await originalMethod.apply(this, args);
 				} catch (err: unknown) {
 					console.warn(
-						`[${(this as any).platformName || "System"}] Attempt ${attempt}/${maxRetries} network error: ${(err as Error).message}`,
+						`[${(this as any).platformName || "System"}] Attempt ${attempt}/${maxRetries} network error: ${isError(err) ? err.message : String(err)}`,
 					);
 					if (attempt === maxRetries) {
 						console.error(
