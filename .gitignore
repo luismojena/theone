@@ -19,3 +19,4 @@ scratch_*.mjs
 
 # Compiled TypeScript output
 dist/
+docs/index.md
