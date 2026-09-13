@@ -35,7 +35,7 @@ I built this because I faced this exact problem and ended up vibe-coding my way 
 
 ## 🛠️ Forging the Script (Installation)
 
-1. **Requirements**: Node.js v18+ is required.
+1. **Requirements**: Node.js v24+ (Latest LTS) is required.
 2. **Install the dependencies**:
    ```bash
    npm install

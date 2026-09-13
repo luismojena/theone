@@ -35,7 +35,7 @@ Construí esto porque me enfrenté a este mismo problema y terminé programando 
 
 ## 🛠️ Forjando el Script (Instalación)
 
-1. **Requisitos**: Node.js v18+ es obligatorio.
+1. **Requisitos**: Node.js v24+ (Último LTS) es obligatorio.
 2. **Instalar las dependencias**:
    ```bash
    npm install
