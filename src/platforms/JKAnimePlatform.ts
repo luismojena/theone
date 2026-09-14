@@ -1,5 +1,5 @@
 import * as cheerio from "cheerio";
-import { WatchlistEntry, WatchStatus } from "../core/domain.js";
+import { type SearchResult, WatchlistEntry, WatchStatus } from "../core/domain.js";
 import { IAnimePlatform } from "../core/IAnimePlatform.js";
 
 export class JKAnimePlatform extends IAnimePlatform {
@@ -149,7 +149,7 @@ export class JKAnimePlatform extends IAnimePlatform {
 		return []; // Fallback stub
 	}
 
-	async updateEntryStatus(entry: import("../core/domain.js").WatchlistEntry) {
+	async updateEntryStatus(entry: WatchlistEntry) {
 		if (!this.cookies) throw new Error("Must authenticate before updating status");
 
 		// Fetch details
@@ -195,7 +195,7 @@ export class JKAnimePlatform extends IAnimePlatform {
 		const res = await this.request(url);
 		const html = await res.text();
 		const $ = cheerio.load(html);
-		const results: import("../core/domain.js").SearchResult[] = [];
+		const results: SearchResult[] = [];
 
 		$(".anime__item").each((_idx, el) => {
 			const a = $(el).find("a").first();
@@ -217,5 +217,25 @@ export class JKAnimePlatform extends IAnimePlatform {
 			"Plan to Watch": WatchStatus.PLAN_TO_WATCH,
 		};
 		return map[malStatusString] || WatchStatus.WATCHING;
+	}
+
+	async fetchAnimeDetails(platformId: string): Promise<{ title: string } | null> {
+		const res = await this.request(`https://jkanime.net/${platformId}/`);
+		const html = await res.text();
+		const $ = cheerio.load(html);
+
+		// Try to find the exact title among the H3 tags (ignoring the search history header)
+		let scrapedTitle = "";
+		$("h3").each((_, el) => {
+			const text = $(el).text().trim();
+			if (text && text !== "Buscado recientemente:" && text !== "Temporadas y relacionados") {
+				if (!scrapedTitle) scrapedTitle = text;
+			}
+		});
+
+		if (scrapedTitle) {
+			return { title: scrapedTitle };
+		}
+		return null;
 	}
 }

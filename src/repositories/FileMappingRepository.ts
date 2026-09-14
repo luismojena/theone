@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import type { MappingEntry } from "../core/domain.js";
 import { isMappingRecord } from "../core/typeGuards.js";
 
 /**
@@ -11,7 +12,7 @@ export class FileMappingRepository {
 	 */
 	constructor(public filePath: string) {}
 
-	loadMappings(): Record<string, import("../core/domain.js").MappingEntry> {
+	loadMappings(): Record<string, MappingEntry> {
 		const dir = path.dirname(this.filePath);
 		if (!fs.existsSync(dir)) {
 			fs.mkdirSync(dir, { recursive: true });
@@ -32,7 +33,7 @@ export class FileMappingRepository {
 		return {};
 	}
 
-	saveMappings(mappings: Record<string, import("../core/domain.js").MappingEntry>) {
+	saveMappings(mappings: Record<string, MappingEntry>) {
 		fs.writeFileSync(this.filePath, JSON.stringify(mappings, null, 2), "utf8");
 	}
 
@@ -63,7 +64,7 @@ export class FileMappingRepository {
 		platformId: string,
 		malId: number | string,
 		malTitle: string,
-		extraData: Partial<import("../core/domain.js").MappingEntry> = {},
+		extraData: Partial<MappingEntry> = {},
 	) {
 		const mappings = this.loadMappings();
 		const key = `${platform}:${platformId}`;

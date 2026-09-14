@@ -17,6 +17,10 @@ class MockTargetPlatform extends IAnimePlatform {
 		return [];
 	}
 	async updateEntryStatus() {}
+	async fetchAnimeDetails(_platformId: string): Promise<{ title: string } | null> {
+		return { title: "Mock Details" };
+	}
+
 	async searchAnime(query: string) {
 		if (query === "Naruto") return [{ platform_id: "999", title: "Naruto Match", url: "/naruto" }];
 		return [];

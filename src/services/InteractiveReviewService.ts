@@ -1,6 +1,6 @@
 import * as cheerio from "cheerio";
 import type { MappingEntry } from "../core/domain.js";
-import type { MALPlatform } from "../platforms/MALPlatform.js";
+import type { IAnimePlatform } from "../core/IAnimePlatform.js";
 import type { FileMappingRepository } from "../repositories/FileMappingRepository.js";
 import { askQuestion } from "../utils.js";
 
@@ -12,9 +12,9 @@ export enum ReviewResult {
 
 export class InteractiveReviewService {
 	constructor(
-		private repo: FileMappingRepository,
-		private malPlatform: MALPlatform,
-		private promptFn: (promptText: string) => Promise<string> = askQuestion,
+		public repo: FileMappingRepository,
+		public searchPlatform: IAnimePlatform,
+		public promptFn: (query: string) => Promise<string> = askQuestion,
 	) {}
 
 	/**
@@ -45,7 +45,7 @@ export class InteractiveReviewService {
 				const query = input.substring(2).trim();
 				console.log(`Searching MyAnimeList for "${query}"...`);
 				try {
-					const results = await this.malPlatform.searchAnime(query);
+					const results = await this.searchPlatform.searchAnime(query);
 					if (results.length === 0) {
 						console.log("No results found.");
 						continue;
@@ -64,7 +64,7 @@ export class InteractiveReviewService {
 
 					if (choiceIdx >= 0 && choiceIdx < results.length) {
 						const selected = results[choiceIdx];
-						const { mal_id, mal_title, ...safeExtraData } = entry;
+						const { mal_id: _malIdIgnored, mal_title: _malTitleIgnored, ...safeExtraData } = entry;
 						this.repo.setMapping(
 							entry.platform || "",
 							entry.platform_id || "",
@@ -87,13 +87,13 @@ export class InteractiveReviewService {
 
 				console.log(`Fetching info for MAL ID: ${malId}...`);
 				try {
-					const res = await this.malPlatform.request(`https://myanimelist.net/anime/${malId}`);
+					const res = await this.searchPlatform.request(`https://myanimelist.net/anime/${malId}`);
 					const html = await res.text();
 					const $ = cheerio.load(html);
 					const title = $("h1.title-name strong").text().trim() || $("h1.title-name").text().trim();
 
 					if (title) {
-						const { mal_id, mal_title, ...safeExtraData } = entry;
+						const { mal_id: _malIdIgnored, mal_title: _malTitleIgnored, ...safeExtraData } = entry;
 						this.repo.setMapping(
 							entry.platform || "",
 							entry.platform_id || "",
@@ -115,7 +115,6 @@ export class InteractiveReviewService {
 				console.log("Invalid input. Enter a choice or one of the commands.");
 			}
 		}
-		return ReviewResult.SKIPPED;
 	}
 
 	/**

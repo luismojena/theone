@@ -1,3 +1,4 @@
+import { PlatformFactory } from "./src/platforms/PlatformFactory.js";
 import "dotenv/config";
 import { Command } from "commander";
 import { runFetchJKAnimeList, runSyncJKAnime } from "./src/cli/jkanimeCli.js";
@@ -121,8 +122,7 @@ export function buildCLI() {
 		.command("scrape")
 		.description("Scrape AnimeFLV profile pages to scraped.json")
 		.action(async () => {
-			const { AnimeFLVPlatform } = await import("./src/platforms/AnimeFLVPlatform.js");
-			const platform = new AnimeFLVPlatform();
+			const platform = PlatformFactory.getPlatform("animeflv");
 			const profileId = process.env.ANIMEFLV_USER;
 			if (!profileId) throw new Error("ANIMEFLV_USER environment variable is required");
 			await platform.authenticate({ profileId });

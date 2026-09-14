@@ -1,7 +1,9 @@
 import { isError } from "../core/typeGuards.js";
-import { JKAnimePlatform } from "../platforms/JKAnimePlatform.js";
+import { PlatformFactory } from "../platforms/PlatformFactory.js";
 import { FileMappingRepository } from "../repositories/FileMappingRepository.js";
 import { askQuestion } from "../utils.js";
+
+const PLATFORM_NAME = "jkanime";
 
 export async function runFetchJKAnimeList(options: Record<string, string | boolean> = {}) {
 	console.log("--- Fetch JKanime Profile Watchlist States ---");
@@ -18,7 +20,7 @@ export async function runFetchJKAnimeList(options: Record<string, string | boole
 		}
 	}
 
-	const platform = new JKAnimePlatform();
+	const platform = PlatformFactory.getPlatform(PLATFORM_NAME);
 	let username = process.env.JKANIME_USER;
 	let password = process.env.JKANIME_PASS;
 

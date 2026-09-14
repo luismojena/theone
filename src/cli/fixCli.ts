@@ -1,7 +1,8 @@
-import * as cheerio from "cheerio";
-import { JKAnimePlatform } from "../platforms/JKAnimePlatform.js";
+import type { MappingEntry } from "../core/domain.js";
 import { MALPlatform } from "../platforms/MALPlatform.js";
+import { PlatformFactory } from "../platforms/PlatformFactory.js";
 import { FileMappingRepository } from "../repositories/FileMappingRepository.js";
+import { InteractiveReviewService, ReviewResult } from "../services/InteractiveReviewService.js";
 
 export async function runFixEntry(platformName: string, platformId: string) {
 	console.log(`--- Surgical Fix: ${platformName} -> ${platformId} ---`);
@@ -19,37 +20,22 @@ export async function runFixEntry(platformName: string, platformId: string) {
 	const changes: string[] = [];
 
 	// 1. Fetch Platform Data
-	if (platformName === "jkanime") {
-		console.log(`Fetching live HTML from JKanime for '${platformId}'...`);
-		try {
-			const p = new JKAnimePlatform();
-			const res = await p.request(`https://jkanime.net/${platformId}/`);
-			const html = await res.text();
-			const $ = cheerio.load(html);
+	try {
+		console.log(`Fetching live data from ${platformName} for '${platformId}'...`);
+		const platform = PlatformFactory.getPlatform(platformName);
+		const details = await platform.fetchAnimeDetails(platformId);
 
-			// Try to find the exact title among the H3 tags (ignoring the search history header)
-			let scrapedTitle = "";
-			$("h3").each((_, el) => {
-				const text = $(el).text().trim();
-				if (text && text !== "Buscado recientemente:" && text !== "Temporadas y relacionados") {
-					if (!scrapedTitle) scrapedTitle = text;
-				}
-			});
-
-			if (scrapedTitle && scrapedTitle !== existing.title) {
-				changes.push(`Title: "${existing.title}" -> "${scrapedTitle}"`);
-				newTitle = scrapedTitle;
-			} else if (scrapedTitle) {
-				console.log(`Platform title is already perfectly correct: "${scrapedTitle}"`);
-			} else {
-				console.warn("⚠️ Could not find a valid title in the JKanime HTML.");
-			}
-		} catch (err: unknown) {
-			const msg = err instanceof Error ? err.message : String(err);
-			console.error(`❌ Failed to scrape JKanime:`, msg);
+		if (details && details.title !== existing.title) {
+			changes.push(`Title: "${existing.title}" -> "${details.title}"`);
+			newTitle = details.title;
+		} else if (details) {
+			console.log(`Platform title is already perfectly correct: "${details.title}"`);
+		} else {
+			console.warn(`⚠️ Could not find a valid title on ${platformName}.`);
 		}
-	} else {
-		console.log(`⚠️ Platform specific HTML scraping for '${platformName}' is not implemented yet.`);
+	} catch (err: unknown) {
+		const msg = err instanceof Error ? err.message : String(err);
+		console.error(`❌ Failed to scrape ${platformName}:`, msg);
 	}
 
 	// 2. Fetch MAL Data
@@ -57,19 +43,14 @@ export async function runFixEntry(platformName: string, platformId: string) {
 	if (malId > 0) {
 		console.log(`Fetching live HTML from MyAnimeList for ID '${malId}'...`);
 		try {
-			const malPlatform = new MALPlatform();
-			const res = await malPlatform.request(`https://myanimelist.net/anime/${malId}`);
-			const html = await res.text();
-			const $ = cheerio.load(html);
+			const malPlatform = PlatformFactory.getPlatform("mal");
+			const details = await malPlatform.fetchAnimeDetails(malId.toString());
 
-			const malTitleScraped =
-				$("h1.title-name strong").text().trim() || $("h1.title-name").text().trim();
-
-			if (malTitleScraped && malTitleScraped !== existing.mal_title) {
-				changes.push(`MAL Title: "${existing.mal_title}" -> "${malTitleScraped}"`);
-				newMalTitle = malTitleScraped;
-			} else if (malTitleScraped) {
-				console.log(`MAL title is already perfectly correct: "${malTitleScraped}"`);
+			if (details && details.title !== existing.mal_title) {
+				changes.push(`MAL Title: "${existing.mal_title}" -> "${details.title}"`);
+				newMalTitle = details.title;
+			} else if (details) {
+				console.log(`MAL title is already perfectly correct: "${details.title}"`);
 			} else {
 				console.warn("⚠️ Could not find a valid title in the MyAnimeList HTML.");
 			}
@@ -80,14 +61,11 @@ export async function runFixEntry(platformName: string, platformId: string) {
 	} else {
 		console.log(`⚠️ No mal_id mapped for this entry. Dropping into interactive MAL review...`);
 
-		const { InteractiveReviewService, ReviewResult } = await import(
-			"../services/InteractiveReviewService.js"
-		);
 		const malPlatform = new MALPlatform();
 		const reviewService = new InteractiveReviewService(repo, malPlatform);
 
 		// Ensure the entry passed to review has the freshly scraped title so it's clean for the prompt
-		const freshEntry = { ...existing, title: newTitle } as import("../core/domain.js").MappingEntry;
+		const freshEntry = { ...existing, title: newTitle } as MappingEntry;
 
 		const result = await reviewService.reviewSingleEntry(freshEntry);
 		if (result === ReviewResult.RESOLVED) {

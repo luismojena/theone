@@ -1,7 +1,8 @@
 import fs from "node:fs";
 import { WatchStatus } from "../core/domain.js";
-import { MALPlatform } from "../platforms/MALPlatform.js";
+import { PlatformFactory } from "../platforms/PlatformFactory.js";
 import { FileMappingRepository } from "../repositories/FileMappingRepository.js";
+import { InteractiveReviewService } from "../services/InteractiveReviewService.js";
 import { askQuestion, EXPORT_FILE, loadConfig, saveConfig } from "../utils.js";
 
 export async function runExport() {
@@ -22,7 +23,7 @@ export async function runExport() {
 	const liveMalMap = new Map();
 	if (username) {
 		console.log(`Fetching live MyAnimeList watchlist for user "${username}"...`);
-		const platform = new MALPlatform();
+		const platform = PlatformFactory.getPlatform("mal");
 		await platform.authenticate({ username: (username as string) || "" });
 		const entries = await platform.fetchWatchlist();
 		for (const entry of entries) {
@@ -74,7 +75,7 @@ export async function runResolve() {
 	console.log("--- Resolving missing MAL IDs ---");
 	const repo = new FileMappingRepository("./migrations/mappings.json");
 	const mappings = repo.loadMappings();
-	const malPlatform = new MALPlatform();
+	const malPlatform = PlatformFactory.getPlatform("mal");
 
 	let resolvedCount = 0;
 	let missingCount = 0;
@@ -136,10 +137,9 @@ export async function runResolve() {
 }
 export async function runReview() {
 	const repo = new FileMappingRepository("./migrations/mappings.json");
-	const malPlatform = new MALPlatform();
+	const malPlatform = PlatformFactory.getPlatform("mal");
 
 	// Dynamically import the service
-	const { InteractiveReviewService } = await import("../services/InteractiveReviewService.js");
 	const reviewService = new InteractiveReviewService(repo, malPlatform);
 
 	await reviewService.runFullReviewLoop();
@@ -148,7 +148,7 @@ export async function completeMALWatching() {}
 
 export async function runFetchMALList() {
 	console.log("--- Fetch Live MyAnimeList Database ---");
-	const platform = new MALPlatform();
+	const platform = PlatformFactory.getPlatform("mal");
 	const config = loadConfig();
 	let username = process.env.MAL_USER || config.mal_user;
 

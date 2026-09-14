@@ -1,19 +1,20 @@
+import type { WatchlistEntry } from "../core/domain.js";
 import type { FileMappingRepository } from "../repositories/FileMappingRepository.js";
 
 export class WatchlistSyncService {
 	constructor(public mappingRepository: FileMappingRepository) {}
 
-	computeIncrementalDiff(incomingEntries: import("../core/domain.js").WatchlistEntry[]) {
+	computeIncrementalDiff(incomingEntries: WatchlistEntry[]) {
 		const diff = {
-			newEntries: [] as import("../core/domain.js").WatchlistEntry[],
+			newEntries: [] as WatchlistEntry[],
 			modifiedEntries: [] as {
-				entry: import("../core/domain.js").WatchlistEntry;
+				entry: WatchlistEntry;
 				previous_episodes: number;
 				previous_status: string;
 				mal_id?: number;
 				mal_title?: string;
 			}[],
-			unchangedEntries: [] as import("../core/domain.js").WatchlistEntry[],
+			unchangedEntries: [] as WatchlistEntry[],
 		};
 
 		for (const incoming of incomingEntries) {
