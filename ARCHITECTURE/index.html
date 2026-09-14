@@ -400,7 +400,7 @@
           <li class="md-nav__item">
   <a href="#key-architectural-concepts" class="md-nav__link">
     <span class="md-ellipsis">
-      Key Architectural Concepts:
+      Key Architectural Concepts
     </span>
   </a>
   
@@ -433,7 +433,7 @@
           <li class="md-nav__item">
   <a href="#schema-definition" class="md-nav__link">
     <span class="md-ellipsis">
-      Schema Definition:
+      Schema Definition
     </span>
   </a>
   
@@ -457,7 +457,7 @@
           <li class="md-nav__item">
   <a href="#diff-calculation-flow" class="md-nav__link">
     <span class="md-ellipsis">
-      Diff Calculation Flow:
+      Diff Calculation Flow
     </span>
   </a>
   
@@ -647,20 +647,20 @@
 <hr />
 <h2 id="1-design-philosophy">1. Design Philosophy</h2>
 <p>The core principle of this project is <strong>decoupled multi-platform synchronization with MyAnimeList (MAL) as the single source of truth</strong>, built on a strict TypeScript foundation.</p>
-<h3 id="key-architectural-concepts">Key Architectural Concepts:</h3>
+<h3 id="key-architectural-concepts">Key Architectural Concepts</h3>
 <ul>
 <li><strong>MAL as Universal Anchor</strong>: External sites (AnimeFLV, JKanime, AnimeAV1, etc.) have varying title formats, season naming conventions, and internal IDs. Rather than attempting $N \times N$ direct site-to-site mappings, <strong>every site entry maps to a canonical MyAnimeList ID</strong>.</li>
 <li><strong>Domain-Driven Design (DDD)</strong>: Business logic (Syncing, Importing) is completely isolated from Infrastructure (HTTP requests, HTML scraping) and Persistence (JSON file storage).</li>
-<li><strong>Strategy Pattern</strong>: All platforms implement the <code>IAnimePlatform</code> abstract class, making adding new platforms trivial without modifying core sync logic.</li>
+<li><strong>Strategy Pattern</strong>: All platforms implement the <code>IAnimePlatform</code> interface, making adding new platforms trivial without modifying core sync logic.</li>
 <li><strong>Incremental Reconciliation</strong>: Synchronization actions operate on a delta diff model, updating only entries whose episode progress or status has changed since the last sync.</li>
 </ul>
 <hr />
 <h2 id="2-ddd-directory-structure">2. DDD Directory Structure</h2>
 <ul>
-<li><strong><code>src/core/</code></strong>: Defines the structural backbone of the app. Includes <code>domain.ts</code> (Entities/Interfaces like <code>WatchlistEntry</code> and <code>MappingEntry</code>), <code>IAnimePlatform.ts</code> (Abstract Platform definition), and <code>typeGuards.ts</code> (Zod-like JSON/Error runtime validators).</li>
+<li><strong><code>src/core/</code></strong>: Defines the structural backbone of the app. Includes <code>domain.ts</code> (Entities/Interfaces like <code>WatchlistEntry</code> and <code>MappingEntry</code>), <code>interfaces.ts</code> (Platform interfaces), <code>HttpClient.ts</code> (HTTP request abstraction), and <code>typeGuards.ts</code> (Zod-like JSON/Error runtime validators).</li>
 <li><strong><code>src/repositories/</code></strong>: Handles persistence. <code>FileMappingRepository</code> abstracts away reading and writing to <code>migrations/mappings.json</code>.</li>
-<li><strong><code>src/platforms/</code></strong>: The infrastructure layer. Contains concrete implementations of <code>IAnimePlatform</code> (e.g. <code>AnimeAV1Platform</code>, <code>JKAnimePlatform</code>). </li>
-<li><strong><code>src/services/</code></strong>: The business logic layer. </li>
+<li><strong><code>src/platforms/</code></strong>: The infrastructure layer. Contains concrete implementations of <code>IAnimePlatform</code> (e.g. <code>AnimeAV1Platform</code>, <code>JKAnimePlatform</code>).</li>
+<li><strong><code>src/services/</code></strong>: The business logic layer.</li>
 <li><code>WatchlistSyncService</code>: Computes state differences between local truth and a remote platform.</li>
 <li><code>PlatformImporterService</code>: Automatically cross-references unmapped entries with a remote platform to build mapping bridges.</li>
 <li><strong><code>src/cli/</code></strong>: The controller layer. Glues repositories, platforms, and services together in response to terminal commands.</li>
@@ -669,7 +669,7 @@
 <h2 id="3-persistent-mapping-database-schema">3. Persistent Mapping Database Schema</h2>
 <p>Location: <code>migrations/mappings.json</code></p>
 <p>Entries are keyed by <code>${platform}:${platform_id}</code>.</p>
-<h3 id="schema-definition">Schema Definition:</h3>
+<h3 id="schema-definition">Schema Definition</h3>
 <div class="language-json highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">{</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="nt">"animeav1:4382"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="nt">"platform"</span><span class="p">:</span><span class="w"> </span><span class="s2">"animeav1"</span><span class="p">,</span>
@@ -686,7 +686,7 @@
 <hr />
 <h2 id="4-incremental-reconciliation-engine">4. Incremental Reconciliation Engine</h2>
 <p>The reconciliation engine is provided by <code>src/services/WatchlistSyncService.ts</code> via the <code>computeIncrementalDiff(incomingEntries)</code> helper.</p>
-<h3 id="diff-calculation-flow">Diff Calculation Flow:</h3>
+<h3 id="diff-calculation-flow">Diff Calculation Flow</h3>
 <ol>
 <li><strong><code>newEntries</code></strong>: Items present in the incoming platform list but not yet mapped in <code>mappings.json</code>.</li>
 <li><strong><code>modifiedEntries</code></strong>: Mapped items where current <code>episodesWatched</code> or <code>status</code> differs from <code>last_synced_episodes</code> or <code>last_synced_status</code>.</li>
@@ -696,43 +696,52 @@
 <h2 id="5-step-by-step-guide-adding-a-new-site">5. Step-by-Step Guide: Adding a New Site</h2>
 <p>To integrate a new platform (e.g. <code>CrunchyrollPlatform</code>):</p>
 <h3 id="step-1-create-the-platform-class">Step 1: Create the Platform Class</h3>
-<p>Create <code>src/platforms/CrunchyrollPlatform.ts</code>:
-<div class="language-typescript highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">IAnimePlatform</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"../core/IAnimePlatform.js"</span><span class="p">;</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">WatchlistEntry</span><span class="p">,</span><span class="w"> </span><span class="nx">SearchResult</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"../core/domain.js"</span><span class="p">;</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">CrunchyrollPlatform</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">IAnimePlatform</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="nx">get</span><span class="w"> </span><span class="nx">platformName</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="s2">"crunchyroll"</span><span class="p">;</span>
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>
-</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">    </span><span class="k">async</span><span class="w"> </span><span class="nx">authenticate</span><span class="p">(</span><span class="nx">credentials</span><span class="o">:</span><span class="w"> </span><span class="kt">Record</span><span class="o">&lt;</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="kt">string</span><span class="o">&gt;</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="ow">void</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="nx">defaultHeaders</span><span class="p">.</span><span class="nx">Authorization</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sb">`Bearer </span><span class="si">${</span><span class="nx">credentials</span><span class="p">.</span><span class="nx">token</span><span class="si">}</span><span class="sb">`</span><span class="p">;</span>
-</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>
-</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">    </span><span class="k">async</span><span class="w"> </span><span class="nx">fetchWatchlist</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="nx">WatchlistEntry</span><span class="p">[]</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">        </span><span class="c1">// Scrape/fetch watchlist</span>
-</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="p">[];</span>
-</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>
-</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="w">    </span><span class="k">async</span><span class="w"> </span><span class="nx">updateEntryStatus</span><span class="p">(</span><span class="nx">entry</span><span class="o">:</span><span class="w"> </span><span class="kt">WatchlistEntry</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="ow">void</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="w">        </span><span class="c1">// POST API update</span>
-</span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>
-</span><span id="__span-1-22"><a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="w">    </span><span class="k">async</span><span class="w"> </span><span class="nx">searchAnime</span><span class="p">(</span><span class="nx">query</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="nx">SearchResult</span><span class="p">[]</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-23"><a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a><span class="w">        </span><span class="c1">// Search the platform for MAL mapping</span>
-</span><span id="__span-1-24"><a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="p">[];</span>
-</span><span id="__span-1-25"><a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-1-26"><a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a><span class="p">}</span>
-</span></code></pre></div></p>
+<p>Create <code>src/platforms/CrunchyrollPlatform.ts</code>:</p>
+<div class="language-typescript highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">import</span><span class="w"> </span><span class="kr">type</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">IAnimePlatform</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"../core/interfaces.js"</span><span class="p">;</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">HttpClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"../core/HttpClient.js"</span><span class="p">;</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">WatchlistEntry</span><span class="p">,</span><span class="w"> </span><span class="nx">SearchResult</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"../core/domain.js"</span><span class="p">;</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">CrunchyrollPlatform</span><span class="w"> </span><span class="k">implements</span><span class="w"> </span><span class="nx">IAnimePlatform</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="nx">httpClient</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">HttpClient</span><span class="p">();</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w"> </span><span class="nx">get</span><span class="w"> </span><span class="nx">platformName</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="s2">"crunchyroll"</span><span class="p">;</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="nx">authenticate</span><span class="p">(</span><span class="nx">credentials</span><span class="o">:</span><span class="w"> </span><span class="kt">Record</span><span class="o">&lt;</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="kt">string</span><span class="o">&gt;</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="ow">void</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="nx">httpClient</span><span class="p">.</span><span class="nx">defaultHeaders</span><span class="p">.</span><span class="nx">Authorization</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sb">`Bearer </span><span class="si">${</span><span class="nx">credentials</span><span class="p">.</span><span class="nx">token</span><span class="si">}</span><span class="sb">`</span><span class="p">;</span>
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>
+</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="nx">fetchAnimeDetails</span><span class="p">(</span><span class="nx">platformId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="p">{</span><span class="w"> </span><span class="nx">title</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="kc">null</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>
+</span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="nx">fetchWatchlist</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="nx">WatchlistEntry</span><span class="p">[]</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="w">  </span><span class="c1">// Scrape/fetch watchlist</span>
+</span><span id="__span-1-22"><a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">[];</span>
+</span><span id="__span-1-23"><a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-1-24"><a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>
+</span><span id="__span-1-25"><a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="nx">updateEntryStatus</span><span class="p">(</span><span class="nx">entry</span><span class="o">:</span><span class="w"> </span><span class="kt">WatchlistEntry</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="ow">void</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-26"><a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a><span class="w">  </span><span class="c1">// POST API update</span>
+</span><span id="__span-1-27"><a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-1-28"><a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a>
+</span><span id="__span-1-29"><a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="nx">searchAnime</span><span class="p">(</span><span class="nx">query</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="nx">SearchResult</span><span class="p">[]</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-30"><a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a><span class="w">  </span><span class="c1">// Search the platform for MAL mapping</span>
+</span><span id="__span-1-31"><a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">[];</span>
+</span><span id="__span-1-32"><a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-1-33"><a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a><span class="p">}</span>
+</span></code></pre></div>
 <h3 id="step-2-create-a-cli-handler">Step 2: Create a CLI Handler</h3>
 <p>Create <code>src/cli/crunchyrollCli.ts</code> to wire up the new platform using the existing services (<code>WatchlistSyncService</code>, <code>PlatformImporterService</code>).</p>
 <h3 id="step-3-register-command-in-theonets">Step 3: Register Command in <code>theone.ts</code></h3>
 <p>In <code>theone.ts</code>, import your new CLI file and add it to the routing switch statement.</p>
 <hr />
 <h2 id="6-type-guards-and-error-handling">6. Type Guards and Error Handling</h2>
-<p>Do not blindly cast <code>any</code> or <code>unknown</code> API responses. Always use or extend <code>src/core/typeGuards.ts</code>.
-- Use <code>isMappingRecord(data)</code> before reading from disk.
-- Use <code>isError(err)</code> in <code>catch</code> blocks to safely extract <code>err.message</code> instead of throwing <code>undefined</code>.</p>
+<p>Do not blindly cast <code>any</code> or <code>unknown</code> API responses. Always use or extend <code>src/core/typeGuards.ts</code>.</p>
+<ul>
+<li>Use <code>isMappingRecord(data)</code> before reading from disk.</li>
+<li>Use <code>isError(err)</code> in <code>catch</code> blocks to safely extract <code>err.message</code> instead of throwing <code>undefined</code>.</li>
+</ul>
 
 
 

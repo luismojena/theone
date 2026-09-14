@@ -777,66 +777,68 @@
 <h2 id="forjando-el-script-instalacion">🛠️ Forjando el Script (Instalación)</h2>
 <ol>
 <li><strong>Requisitos</strong>: Node.js v24+ (Último LTS) es obligatorio.</li>
-<li><strong>Instalar las dependencias</strong>:
-   <div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>npm<span class="w"> </span>install
-</span></code></pre></div></li>
+<li><strong>Instalar las dependencias</strong>:</li>
+</ol>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>npm<span class="w"> </span>install
+</span></code></pre></div>
+<ol>
 <li><strong>Las Runas Secretas (<code>.env</code>)</strong>:
-   Crea un archivo <code>.env</code> en el directorio raíz (revisa la plantilla <code>.env.example</code>). Mantenlo en secreto, mantenlo a salvo:
-   <div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>MAL_USER=tu_usuario_de_mal
+   Crea un archivo <code>.env</code> en el directorio raíz (revisa la plantilla <code>.env.example</code>). Mantenlo en secreto, mantenlo a salvo:</li>
+</ol>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>MAL_USER=tu_usuario_de_mal
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>JKANIME_USER=tu_usuario_de_jkanime
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>JKANIME_PASS=tu_contrasena_de_jkanime
 </span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>ANIMEAV1_SESSION=tu_cookie_de_sesion_de_animeav1
-</span></code></pre></div></li>
-</ol>
+</span></code></pre></div>
 <p><em>Todos los resultados generados, copias de seguridad y estados de configuración se atesoran a salvo en el directorio <code>migrations/</code> como el tesoro de un dragón.</em></p>
 <hr />
 <h2 id="blandiendo-the-one-uso-del-cli">🧙‍♂️ Blandiendo The One (Uso del CLI)</h2>
 <p>La herramienta utiliza <code>theone.ts</code> como el enrutador central de comandos. Puedes lanzar tus hechizos usando <code>npx tsx theone.ts &lt;comando&gt;</code> o compilarlo y ejecutar <code>node dist/theone.js &lt;comando&gt;</code>.</p>
 <h3 id="comandos-de-animeav1">⚔️ Comandos de AnimeAV1</h3>
 <h4 id="obtener-lista-de-animeav1">Obtener Lista de AnimeAV1</h4>
-<p>Invoca y muestra tu lista de seguimiento en vivo de AnimeAV1 utilizando la cookie de sesión.
+<p>Invoca y muestra tu lista de seguimiento en vivo de AnimeAV1 utilizando la cookie de sesión.</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>npx<span class="w"> </span>tsx<span class="w"> </span>theone.ts<span class="w"> </span>animeav1<span class="w"> </span>fetch
-</span></code></pre></div></p>
+</span></code></pre></div>
 <h4 id="sincronizar-lista-a-animeav1">Sincronizar Lista a AnimeAV1</h4>
-<p>Empuja tu base de datos local hacia AnimeAV1. Actualiza las entradas donde el contador de episodios o el estado local está más avanzado que el del servidor remoto.
+<p>Empuja tu base de datos local hacia AnimeAV1. Actualiza las entradas donde el contador de episodios o el estado local está más avanzado que el del servidor remoto.</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>npx<span class="w"> </span>tsx<span class="w"> </span>theone.ts<span class="w"> </span>animeav1<span class="w"> </span>sync
-</span></code></pre></div></p>
+</span></code></pre></div>
 <h4 id="importacion-resolucion-automatica">Importación / Resolución Automática</h4>
-<p>Recorre todos los IDs de MAL rastreados localmente, consulta AnimeAV1 en busca de coincidencias exactas, y auto-resuelve los IDs de mapeo sin esfuerzo.
+<p>Recorre todos los IDs de MAL rastreados localmente, consulta AnimeAV1 en busca de coincidencias exactas, y auto-resuelve los IDs de mapeo sin esfuerzo.</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>npx<span class="w"> </span>tsx<span class="w"> </span>theone.ts<span class="w"> </span>animeav1<span class="w"> </span>import
-</span></code></pre></div></p>
+</span></code></pre></div>
 <h3 id="comandos-de-animeflv">🗡️ Comandos de AnimeFLV</h3>
 <h4 id="obtener-scrape-animeflv">Obtener (Scrape) AnimeFLV</h4>
-<p>Saquea tu lista de seguimiento de AnimeFLV y la guarda en el almacenamiento local.
+<p>Saquea tu lista de seguimiento de AnimeFLV y la guarda en el almacenamiento local.</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>npx<span class="w"> </span>tsx<span class="w"> </span>theone.ts<span class="w"> </span>scrape
-</span></code></pre></div></p>
+</span></code></pre></div>
 <h4 id="resolver-ids-de-mal">Resolver IDs de MAL</h4>
-<p>Mapea todos los títulos de AnimeFLV previamente obtenidos a sus IDs canónicos de MAL.
+<p>Mapea todos los títulos de AnimeFLV previamente obtenidos a sus IDs canónicos de MAL.</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>npx<span class="w"> </span>tsx<span class="w"> </span>theone.ts<span class="w"> </span>resolve
-</span></code></pre></div></p>
+</span></code></pre></div>
 <h3 id="comandos-de-jkanime">🥷 Comandos de JKanime</h3>
 <h4 id="obtener-estados-de-jkanime">Obtener Estados de JKanime</h4>
-<p>Obtiene sigilosamente tus estados actuales de JKanime y los almacena en caché.
+<p>Obtiene sigilosamente tus estados actuales de JKanime y los almacena en caché.</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>npx<span class="w"> </span>tsx<span class="w"> </span>theone.ts<span class="w"> </span>fetch-jkanime-list
-</span></code></pre></div></p>
+</span></code></pre></div>
 <h4 id="sincronizar-lista-a-jkanime">Sincronizar Lista a JKanime</h4>
-<p>Empuja los estados de tu lista local hacia tu cuenta de JKanime en vivo. Usa <code>--autoskip</code> para permitir que el script se ejecute sin intervención manual.
+<p>Empuja los estados de tu lista local hacia tu cuenta de JKanime en vivo. Usa <code>--autoskip</code> para permitir que el script se ejecute sin intervención manual.</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>npx<span class="w"> </span>tsx<span class="w"> </span>theone.ts<span class="w"> </span>sync-jkanime<span class="w"> </span>--force<span class="w"> </span>--autoskip
-</span></code></pre></div></p>
+</span></code></pre></div>
 <h3 id="comandos-de-myanimelist-mal">📖 Comandos de MyAnimeList (MAL)</h3>
 <h4 id="exportar-xml-de-mal">Exportar XML de MAL</h4>
-<p>Forja un archivo XML importable basado en tus bases de datos mapeadas para subirlo directamente a MAL.
+<p>Forja un archivo XML importable basado en tus bases de datos mapeadas para subirlo directamente a MAL.</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>npx<span class="w"> </span>tsx<span class="w"> </span>theone.ts<span class="w"> </span><span class="nb">export</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
 <h4 id="completar-series-en-emision">Completar Series en Emisión</h4>
-<p>Consulta la API de Jikan para marcar automáticamente como "Completado" en MAL cualquier serie "En Seguimiento" (Watching) que haya finalizado su emisión.
+<p>Consulta la API de Jikan para marcar automáticamente como "Completado" en MAL cualquier serie "En Seguimiento" (Watching) que haya finalizado su emisión.</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>npx<span class="w"> </span>tsx<span class="w"> </span>theone.ts<span class="w"> </span>complete-watching
-</span></code></pre></div></p>
+</span></code></pre></div>
 <h3 id="comandos-de-utilidad">🧙‍♂️ Comandos de Utilidad</h3>
 <h4 id="revision-interactiva-de-coincidencias">Revisión Interactiva de Coincidencias</h4>
-<p>Asistente interactivo de CLI para asignar manualmente IDs de MAL en caso de coincidencias ambiguas (para cuando la IA actúa como un insensato Tuk).
+<p>Asistente interactivo de CLI para asignar manualmente IDs de MAL en caso de coincidencias ambiguas (para cuando la IA actúa como un insensato Tuk).</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>npx<span class="w"> </span>tsx<span class="w"> </span>theone.ts<span class="w"> </span>review
-</span></code></pre></div></p>
+</span></code></pre></div>
 <hr />
 <h2 id="la-arquitectura-de-gondor">🏗️ La Arquitectura de Gondor</h2>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>├── docs/                     # Textos antiguos y Guía de Extensibilidad
@@ -846,7 +848,7 @@
 </span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>│   └── import.xml            # Importación generada de XML para MAL
 </span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>├── src/                      # La Forja: Código fuente modular y fuertemente tipado
 </span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>│   ├── cli/                  # Capa de interacción CLI (La Boca de Sauron)
-</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>│   ├── core/                 # Clases abstractas, decoradores, entidades de dominio
+</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>│   ├── core/                 # Interfaces, cliente HTTP, decoradores, entidades de dominio
 </span><span id="__span-12-9"><a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a>│   ├── platforms/            # Adaptadores concretos (Patrón Strategy)
 </span><span id="__span-12-10"><a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a>│   ├── repositories/         # Capa de persistencia de datos
 </span><span id="__span-12-11"><a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a>│   ├── services/             # Lógica de negocio core (Motores de Diff, Auto-Importadores)
@@ -856,9 +858,9 @@
 </span></code></pre></div>
 <hr />
 <h2 id="entrenando-a-las-tropas">🛡️ Entrenando a las Tropas</h2>
-<p>Las pruebas unitarias están escritas usando el test runner nativo de Node.js. Prueba tu código, no vaya a ser que introduzcas bugs en el reino.
+<p>Las pruebas unitarias están escritas usando el test runner nativo de Node.js. Prueba tu código, no vaya a ser que introduzcas bugs en el reino.</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>npm<span class="w"> </span><span class="nb">test</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
 <h3 id="hechizos-de-desarrollo">Hechizos de Desarrollo</h3>
 <ul>
 <li><code>npm run build</code>: Compila el estricto proyecto de TypeScript en <code>dist/</code>.</li>
