@@ -4,11 +4,11 @@ import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import type { WatchlistEntry } from "../src/core/domain.js";
-import { IAnimePlatform } from "../src/core/IAnimePlatform.js";
+import type { IAnimePlatform } from "../src/core/interfaces.js";
 import { FileMappingRepository } from "../src/repositories/FileMappingRepository.js";
 import { PlatformImporterService } from "../src/services/PlatformImporterService.js";
 
-class MockTargetPlatform extends IAnimePlatform {
+class MockTargetPlatform implements IAnimePlatform {
 	get platformName() {
 		return "mock_target";
 	}

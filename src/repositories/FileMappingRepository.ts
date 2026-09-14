@@ -70,7 +70,7 @@ export class FileMappingRepository {
 		const key = `${platform}:${platformId}`;
 
 		mappings[key] = {
-			...(mappings[key] || {}),
+			...mappings[key],
 			...extraData, // Extra data spreads first, so it preserves non-core fields
 			platform,
 			platform_id: platformId,

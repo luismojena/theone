@@ -1,8 +1,10 @@
 import * as cheerio from "cheerio";
 import { type SearchResult, WatchlistEntry, WatchStatus } from "../core/domain.js";
-import { IAnimePlatform } from "../core/IAnimePlatform.js";
+import { HttpClient } from "../core/HttpClient.js";
+import type { IAnimePlatform } from "../core/interfaces.js";
 
-export class JKAnimePlatform extends IAnimePlatform {
+export class JKAnimePlatform implements IAnimePlatform {
+	public httpClient = new HttpClient();
 	cookies: string | null = null;
 	username: string | null = null;
 
@@ -20,7 +22,7 @@ export class JKAnimePlatform extends IAnimePlatform {
 			password: credentials.password,
 		});
 
-		const res = await this.request("https://login.jkanime.net/api/login", {
+		const res = await this.httpClient.request("https://login.jkanime.net/api/login", {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/x-www-form-urlencoded",
@@ -34,7 +36,7 @@ export class JKAnimePlatform extends IAnimePlatform {
 
 		const cookieArray = res.headers.getSetCookie();
 		this.cookies = cookieArray.map((c) => c.split(";")[0]).join("; ");
-		this.defaultHeaders.Cookie = this.cookies; // Automatically append to all future requests
+		this.httpClient.defaultHeaders.Cookie = this.cookies; // Automatically append to all future requests
 		this.username = credentials.username;
 	}
 
@@ -71,78 +73,79 @@ export class JKAnimePlatform extends IAnimePlatform {
 			"6": { mal_status: "Dropped" },
 		};
 
-		const delayStr = options.delay !== undefined ? options.delay : "200";
-		const jitterStr = options.jitter;
-
 		for (const [tagId, statusInfo] of Object.entries(tagMap)) {
 			let page = 1;
 			let lastPage = 1;
 			do {
-				const url = `https://login.jkanime.net/api/animes?tag=${tagId}&orden=none&filtro=fecha&p=${page}`;
-				const res = await this.request(url, {
-					method: "POST",
-					headers: {
-						"Content-Type": "application/x-www-form-urlencoded",
-					},
-					body: new URLSearchParams({
-						user: this.username as string,
-					}).toString(),
-				});
-
-				const json = await res.json();
-				lastPage = json.last_page || 1;
-
-				const itemsReturned = json.data && Array.isArray(json.data) ? json.data.length : 0;
-				console.log(
-					`[JKAnime API] POST api/animes?tag=${tagId}&p=${page} | Status: ${res.status} | Items: ${itemsReturned} | Total Pages: ${lastPage}`,
+				const { parsedItems, totalPages } = await this.fetchWatchlistPage(
+					tagId,
+					page,
+					statusInfo.mal_status,
 				);
-
-				if (json.data && Array.isArray(json.data)) {
-					for (const rawItem of json.data) {
-						const info =
-							typeof rawItem.info === "string" ? JSON.parse(rawItem.info) : rawItem.info || {};
-						const rawUrl = info.url || rawItem.url || "";
-						const slug = rawUrl.replace(/^https?:\/\/jkanime\.net\//, "").replace(/\//g, "");
-						if (slug) {
-							let title = info.title || rawItem.title || slug;
-							// If the scraped title is suspiciously short or looks like button text, fallback to the URL slug
-							if (title.length <= 15 && !title.includes(" ")) {
-								title = slug.replace(/-/g, " ");
-							}
-							items.push({
-								title,
-								slug,
-								mal_status: statusInfo.mal_status,
-								episodesWatched: 0,
-							});
-						}
-					}
-				}
+				items.push(...parsedItems);
+				lastPage = totalPages;
 				page++;
 
-				if (delayStr !== undefined) {
-					const delayMs = parseInt(delayStr, 10);
-					let jitterLow = 0;
-					let jitterHigh = 100;
-
-					if (jitterStr) {
-						const parts = jitterStr.split("-");
-						if (parts.length === 2) {
-							jitterLow = parseInt(parts[0], 10);
-							jitterHigh = parseInt(parts[1], 10);
-						}
-					}
-
-					const jitterAmount = Math.floor(Math.random() * (jitterHigh - jitterLow + 1)) + jitterLow;
-					const sleepMs = delayMs + jitterAmount;
-					console.log(
-						`[Delay] Sleeping for ${sleepMs}ms (Base: ${delayMs}, Jitter: ${jitterAmount})`,
-					);
+				const sleepMs = this.calculateJitterDelay(options.delay, options.jitter);
+				if (sleepMs > 0) {
+					console.log(`[Delay] Sleeping for ${sleepMs}ms`);
 					await new Promise((resolve) => setTimeout(resolve, sleepMs));
 				}
 			} while (page <= lastPage);
 		}
 		return items;
+	}
+
+	private async fetchWatchlistPage(tagId: string, page: number, malStatus: string) {
+		const url = `https://login.jkanime.net/api/animes?tag=${tagId}&orden=none&filtro=fecha&p=${page}`;
+		const res = await this.httpClient.request(url, {
+			method: "POST",
+			headers: { "Content-Type": "application/x-www-form-urlencoded" },
+			body: new URLSearchParams({ user: this.username as string }).toString(),
+		});
+		const json = await res.json();
+		const lastPage = json.last_page || 1;
+		const itemsReturned = json.data && Array.isArray(json.data) ? json.data.length : 0;
+		console.log(
+			`[JKAnime API] POST api/animes?tag=${tagId}&p=${page} | Status: ${res.status} | Items: ${itemsReturned} | Total Pages: ${lastPage}`,
+		);
+
+		const parsedItems = [];
+		if (json.data && Array.isArray(json.data)) {
+			for (const rawItem of json.data) {
+				const info =
+					typeof rawItem.info === "string" ? JSON.parse(rawItem.info) : rawItem.info || {};
+				const rawUrl = info.url || rawItem.url || "";
+				const slug = rawUrl.replace(/^https?:\/\/jkanime\.net\//, "").replace(/\//g, "");
+				if (slug) {
+					let title = info.title || rawItem.title || slug;
+					if (title.length <= 15 && !title.includes(" ")) {
+						title = slug.replace(/-/g, " ");
+					}
+					parsedItems.push({ title, slug, mal_status: malStatus, episodesWatched: 0 });
+				}
+			}
+		}
+		return { parsedItems, totalPages: lastPage };
+	}
+
+	public calculateJitterDelay(
+		delayStr: string | undefined = "200",
+		jitterStr: string | undefined,
+	): number {
+		const delayMs = parseInt(delayStr, 10);
+		if (Number.isNaN(delayMs)) return 0;
+		let jitterLow = 0;
+		let jitterHigh = 100;
+		if (jitterStr) {
+			const parts = jitterStr.split("-");
+			if (parts.length === 2) {
+				jitterLow = parseInt(parts[0], 10);
+				jitterHigh = parseInt(parts[1], 10);
+			}
+		}
+		const jitterAmount = Math.floor(Math.random() * (jitterHigh - jitterLow + 1)) + jitterLow;
+		return delayMs + jitterAmount;
 	}
 
 	async _fetchWatchlistHTML() {
@@ -154,7 +157,7 @@ export class JKAnimePlatform extends IAnimePlatform {
 
 		// Fetch details
 		const href = `https://jkanime.net/${entry.platformId}/`;
-		const res = await this.request(href);
+		const res = await this.httpClient.request(href);
 		const html = await res.text();
 		const $ = cheerio.load(html);
 
@@ -178,7 +181,7 @@ export class JKAnimePlatform extends IAnimePlatform {
 			tag: tagId.toString(),
 		});
 
-		const updateRes = await this.request("https://login.jkanime.net/api/guardar_anime", {
+		const updateRes = await this.httpClient.request("https://login.jkanime.net/api/guardar_anime", {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/x-www-form-urlencoded",
@@ -192,7 +195,7 @@ export class JKAnimePlatform extends IAnimePlatform {
 
 	async searchAnime(query: string) {
 		const url = `https://jkanime.net/buscar?q=${encodeURIComponent(query)}`;
-		const res = await this.request(url);
+		const res = await this.httpClient.request(url);
 		const html = await res.text();
 		const $ = cheerio.load(html);
 		const results: SearchResult[] = [];
@@ -220,7 +223,7 @@ export class JKAnimePlatform extends IAnimePlatform {
 	}
 
 	async fetchAnimeDetails(platformId: string): Promise<{ title: string } | null> {
-		const res = await this.request(`https://jkanime.net/${platformId}/`);
+		const res = await this.httpClient.request(`https://jkanime.net/${platformId}/`);
 		const html = await res.text();
 		const $ = cheerio.load(html);
 

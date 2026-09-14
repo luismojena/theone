@@ -1,8 +1,9 @@
 import fs from "node:fs";
-import { WatchStatus } from "../core/domain.js";
 import { PlatformFactory } from "../platforms/PlatformFactory.js";
 import { FileMappingRepository } from "../repositories/FileMappingRepository.js";
 import { InteractiveReviewService } from "../services/InteractiveReviewService.js";
+import { MalResolutionService } from "../services/MalResolutionService.js";
+import { MyAnimeListExportService } from "../services/MyAnimeListExportService.js";
 import { askQuestion, EXPORT_FILE, loadConfig, saveConfig } from "../utils.js";
 
 export async function runExport() {
@@ -48,25 +49,9 @@ export async function runExport() {
 		return;
 	}
 
-	let xml = `<?xml version="1.0" encoding="UTF-8" ?>\n<myanimelist>\n  <myinfo>\n    <user_export_type>1</user_export_type>\n  </myinfo>\n`;
+	const exportService = new MyAnimeListExportService();
+	const xml = exportService.generateMyAnimeListXml(matched);
 
-	for (const item of matched) {
-		const malId = item.mal_id;
-		const malTitle = item.mal_title;
-		const itemStatus = item.mal_status || item.last_synced_status || WatchStatus.WATCHING;
-		const itemEpisodes = item.last_synced_episodes || 0;
-
-		xml += `  <anime>
-    <series_animedb_id>${malId}</series_animedb_id>
-    <series_title><![CDATA[${malTitle}]]></series_title>
-    <my_id>0</my_id>
-    <my_watched_episodes>${itemEpisodes}</my_watched_episodes>
-    <my_status>${itemStatus}</my_status>
-    <update_on_import>1</update_on_import>
-  </anime>\n`;
-	}
-
-	xml += `</myanimelist>\n`;
 	fs.writeFileSync(EXPORT_FILE, xml, "utf8");
 	console.log(`Export complete: ${EXPORT_FILE}`);
 }
@@ -76,6 +61,7 @@ export async function runResolve() {
 	const repo = new FileMappingRepository("./migrations/mappings.json");
 	const mappings = repo.loadMappings();
 	const malPlatform = PlatformFactory.getPlatform("mal");
+	const resolutionService = new MalResolutionService(malPlatform);
 
 	let resolvedCount = 0;
 	let missingCount = 0;
@@ -87,24 +73,10 @@ export async function runResolve() {
 			const searchTitle = entry.title || "";
 			console.log(`\nSearching MAL for: "${searchTitle}"...`);
 			try {
-				let results = await malPlatform.searchAnime(searchTitle);
-
-				// If MAL fails to find it because of exact punctuation matching (like colons),
-				// strip special characters and retry.
-				if (results.length === 0) {
-					const strippedTitle = searchTitle
-						.replace(/[^a-zA-Z0-9 ]/g, " ")
-						.replace(/\s+/g, " ")
-						.trim();
-					if (strippedTitle !== searchTitle) {
-						results = await malPlatform.searchAnime(strippedTitle);
-					}
-					// FINAL FALLBACK: If title is totally corrupted in the DB, use the formatted slug
-					if (results.length === 0 && entry.platform_id) {
-						const slugTitle = entry.platform_id.replace(/-/g, " ");
-						results = await malPlatform.searchAnime(slugTitle);
-					}
-				}
+				const results = await resolutionService.searchAnimeWithFallbacks(
+					searchTitle,
+					entry.platform_id,
+				);
 
 				if (results.length > 0) {
 					const bestMatch = results[0];

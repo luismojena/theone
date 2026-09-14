@@ -1,4 +1,4 @@
-import type { IAnimePlatform } from "../core/IAnimePlatform.js";
+import type { IAnimePlatform } from "../core/interfaces.js";
 import { AnimeAV1Platform } from "./AnimeAV1Platform.js";
 import { AnimeFLVPlatform } from "./AnimeFLVPlatform.js";
 import { JKAnimePlatform } from "./JKAnimePlatform.js";
