@@ -64,7 +64,7 @@ export class InteractiveReviewService {
 
 					if (choiceIdx >= 0 && choiceIdx < results.length) {
 						const selected = results[choiceIdx];
-						const { mal_id, mal_title, ...safeExtraData } = entry;
+						const { mal_id: _malIdIgnored, mal_title: _malTitleIgnored, ...safeExtraData } = entry;
 						this.repo.setMapping(
 							entry.platform || "",
 							entry.platform_id || "",
@@ -93,7 +93,7 @@ export class InteractiveReviewService {
 					const title = $("h1.title-name strong").text().trim() || $("h1.title-name").text().trim();
 
 					if (title) {
-						const { mal_id, mal_title, ...safeExtraData } = entry;
+						const { mal_id: _malIdIgnored, mal_title: _malTitleIgnored, ...safeExtraData } = entry;
 						this.repo.setMapping(
 							entry.platform || "",
 							entry.platform_id || "",
@@ -115,7 +115,6 @@ export class InteractiveReviewService {
 				console.log("Invalid input. Enter a choice or one of the commands.");
 			}
 		}
-		return ReviewResult.SKIPPED;
 	}
 
 	/**

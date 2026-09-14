@@ -1,5 +1,5 @@
-import { PlatformFactory } from "../platforms/PlatformFactory.js";
 import { isError } from "../core/typeGuards.js";
+import { PlatformFactory } from "../platforms/PlatformFactory.js";
 import { FileMappingRepository } from "../repositories/FileMappingRepository.js";
 import { askQuestion } from "../utils.js";
 

@@ -1,10 +1,10 @@
-import { describe, it } from "node:test";
 import assert from "node:assert";
-import { PlatformFactory } from "../src/platforms/PlatformFactory.js";
-import { JKAnimePlatform } from "../src/platforms/JKAnimePlatform.js";
+import { describe, it } from "node:test";
 import { AnimeAV1Platform } from "../src/platforms/AnimeAV1Platform.js";
 import { AnimeFLVPlatform } from "../src/platforms/AnimeFLVPlatform.js";
+import { JKAnimePlatform } from "../src/platforms/JKAnimePlatform.js";
 import { MALPlatform } from "../src/platforms/MALPlatform.js";
+import { PlatformFactory } from "../src/platforms/PlatformFactory.js";
 
 describe("PlatformFactory", () => {
 	it("returns correct platform instances", () => {

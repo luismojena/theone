@@ -37,7 +37,7 @@ export class AnimeAV1Platform extends IAnimePlatform {
 			const mediaId = match[1] || "";
 			const statusNum = parseInt(match[2] || "0", 10);
 			const epsWatched = parseInt(match[3] || "0", 10);
-			const _slug = match[4] || "";
+
 			const title = match[5] || "";
 
 			// Escape unicode or hex escapes if any
