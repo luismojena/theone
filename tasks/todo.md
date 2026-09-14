@@ -29,7 +29,6 @@
 - [x] Add unit tests for mapping persistence and incremental diff detection in `tests/`
 - [x] Create comprehensive architecture & extensibility guide in `docs/ARCHITECTURE.md`
 
-
 ## JKanime Watchlist State Synchronization
 
 - [x] Add JKanime profile watchlist scraper in `src/jkanime.js` to extract user tracked anime & status ("Mirando" / "Completado" / etc.)
@@ -61,12 +60,12 @@
 ## Review
 
 Automated Live MAL Watchlist Fetching & Export Diff Breakdown Implementation:
+
 - **API Fetcher**: Added `fetchLiveMALWatchlist(username)` in [`src/mal.js`](file:///home/prow/myanimelist_migration/src/mal.js) querying `https://myanimelist.net/animelist/<username>/load.json?offset=...` (300 items per request).
 - **Export & Diff Breakdown**: Updated `runExport()` in [`src/mal.js`](file:///home/prow/myanimelist_migration/src/mal.js) to automatically diff local mapped entries against live MAL state before writing [`migrations/import.xml`](file:///home/prow/myanimelist_migration/migrations/import.xml).
 - **Process Indication**: Displays clear breakdown of 🆕 new series to add, 🔄 status changes (e.g. `Watching` -> `Completed`), and ⏩ unchanged series.
 - **Config Storage**: Added `loadConfig()` / `saveConfig()` in [`src/utils.js`](file:///home/prow/myanimelist_migration/src/utils.js) saving `mal_user` in `migrations/config.json`.
 - **Testing**: Added unit test `Live MAL Watchlist API Fetching Mock` in [`tests/migration.test.js`](file:///home/prow/myanimelist_migration/tests/migration.test.js). All 16 unit & integration tests pass cleanly.
-
 
 ## DDD Architectural Refactoring
 

@@ -37,11 +37,14 @@ Construí esto porque me enfrenté a este mismo problema y terminé programando 
 
 1. **Requisitos**: Node.js v24+ (Último LTS) es obligatorio.
 2. **Instalar las dependencias**:
+
    ```bash
    npm install
    ```
+
 3. **Las Runas Secretas (`.env`)**:
    Crea un archivo `.env` en el directorio raíz (revisa la plantilla `.env.example`). Mantenlo en secreto, mantenlo a salvo:
+
    ```env
    MAL_USER=tu_usuario_de_mal
    JKANIME_USER=tu_usuario_de_jkanime
@@ -60,19 +63,25 @@ La herramienta utiliza `theone.ts` como el enrutador central de comandos. Puedes
 ### ⚔️ Comandos de AnimeAV1
 
 #### Obtener Lista de AnimeAV1
+
 Invoca y muestra tu lista de seguimiento en vivo de AnimeAV1 utilizando la cookie de sesión.
+
 ```bash
 npx tsx theone.ts animeav1 fetch
 ```
 
 #### Sincronizar Lista a AnimeAV1
+
 Empuja tu base de datos local hacia AnimeAV1. Actualiza las entradas donde el contador de episodios o el estado local está más avanzado que el del servidor remoto.
+
 ```bash
 npx tsx theone.ts animeav1 sync
 ```
 
 #### Importación / Resolución Automática
+
 Recorre todos los IDs de MAL rastreados localmente, consulta AnimeAV1 en busca de coincidencias exactas, y auto-resuelve los IDs de mapeo sin esfuerzo.
+
 ```bash
 npx tsx theone.ts animeav1 import
 ```
@@ -80,13 +89,17 @@ npx tsx theone.ts animeav1 import
 ### 🗡️ Comandos de AnimeFLV
 
 #### Obtener (Scrape) AnimeFLV
+
 Saquea tu lista de seguimiento de AnimeFLV y la guarda en el almacenamiento local.
+
 ```bash
 npx tsx theone.ts scrape
 ```
 
 #### Resolver IDs de MAL
+
 Mapea todos los títulos de AnimeFLV previamente obtenidos a sus IDs canónicos de MAL.
+
 ```bash
 npx tsx theone.ts resolve
 ```
@@ -94,13 +107,17 @@ npx tsx theone.ts resolve
 ### 🥷 Comandos de JKanime
 
 #### Obtener Estados de JKanime
+
 Obtiene sigilosamente tus estados actuales de JKanime y los almacena en caché.
+
 ```bash
 npx tsx theone.ts fetch-jkanime-list
 ```
 
 #### Sincronizar Lista a JKanime
+
 Empuja los estados de tu lista local hacia tu cuenta de JKanime en vivo. Usa `--autoskip` para permitir que el script se ejecute sin intervención manual.
+
 ```bash
 npx tsx theone.ts sync-jkanime --force --autoskip
 ```
@@ -108,13 +125,17 @@ npx tsx theone.ts sync-jkanime --force --autoskip
 ### 📖 Comandos de MyAnimeList (MAL)
 
 #### Exportar XML de MAL
+
 Forja un archivo XML importable basado en tus bases de datos mapeadas para subirlo directamente a MAL.
+
 ```bash
 npx tsx theone.ts export
 ```
 
 #### Completar Series en Emisión
+
 Consulta la API de Jikan para marcar automáticamente como "Completado" en MAL cualquier serie "En Seguimiento" (Watching) que haya finalizado su emisión.
+
 ```bash
 npx tsx theone.ts complete-watching
 ```
@@ -122,7 +143,9 @@ npx tsx theone.ts complete-watching
 ### 🧙‍♂️ Comandos de Utilidad
 
 #### Revisión Interactiva de Coincidencias
+
 Asistente interactivo de CLI para asignar manualmente IDs de MAL en caso de coincidencias ambiguas (para cuando la IA actúa como un insensato Tuk).
+
 ```bash
 npx tsx theone.ts review
 ```
@@ -139,7 +162,7 @@ npx tsx theone.ts review
 │   └── import.xml            # Importación generada de XML para MAL
 ├── src/                      # La Forja: Código fuente modular y fuertemente tipado
 │   ├── cli/                  # Capa de interacción CLI (La Boca de Sauron)
-│   ├── core/                 # Clases abstractas, decoradores, entidades de dominio
+│   ├── core/                 # Interfaces, cliente HTTP, decoradores, entidades de dominio
 │   ├── platforms/            # Adaptadores concretos (Patrón Strategy)
 │   ├── repositories/         # Capa de persistencia de datos
 │   ├── services/             # Lógica de negocio core (Motores de Diff, Auto-Importadores)
@@ -153,11 +176,13 @@ npx tsx theone.ts review
 ## 🛡️ Entrenando a las Tropas
 
 Las pruebas unitarias están escritas usando el test runner nativo de Node.js. Prueba tu código, no vaya a ser que introduzcas bugs en el reino.
+
 ```bash
 npm test
 ```
 
 ### Hechizos de Desarrollo
+
 - `npm run build`: Compila el estricto proyecto de TypeScript en `dist/`.
 - `npm run lint`: Ejecuta el linter Biome a lo largo de todo el repositorio.
 - `npm run format`: Auto-formatea el código base con Biome.

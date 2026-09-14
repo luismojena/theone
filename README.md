@@ -15,7 +15,7 @@ Welcome to **The One** (`theone.ts`), the ridiculously over-engineered, strictly
 
 There are already incredible tools in the anime ecosystem. **[MALSync](https://malsync.moe/)** is the undisputed king of tracking episodes in your browser as you watch them. **[Taiga](https://taiga.moe/)** effortlessly tracks local VLC/mpv video files. **[Trackma](https://github.com/z411/trackma)** offers great manual CLI list management.
 
-So why forge another tool? 
+So why forge another tool?
 
 Because the other rings are **reactive**—they only sync *as you watch*. **The One** is **proactive and stateful**. It is a bulk-migration and disaster recovery engine. If you have a 10-year-old AnimeFLV account with 500 watched shows, MALSync cannot easily port your entire history over to MyAnimeList or JKanime. *The One* scrapes, permanently maps, and diff-syncs your entire lifetime library across platforms in seconds.
 
@@ -37,11 +37,14 @@ I built this because I faced this exact problem and ended up vibe-coding my way 
 
 1. **Requirements**: Node.js v24+ (Latest LTS) is required.
 2. **Install the dependencies**:
+
    ```bash
    npm install
    ```
+
 3. **The Secret Runes (`.env`)**:
    Create a `.env` file in the root directory (see `.env.example`). Keep it secret, keep it safe:
+
    ```env
    MAL_USER=your_mal_username
    JKANIME_USER=your_jkanime_username
@@ -60,19 +63,25 @@ The tool uses `theone.ts` as the central entry-point command router. You can cas
 ### ⚔️ AnimeAV1 Commands
 
 #### Fetch AnimeAV1 Watchlist
+
 Summons and displays your live AnimeAV1 watchlist using the session cookie.
+
 ```bash
 npx tsx theone.ts animeav1 fetch
 ```
 
 #### Synchronize Watchlist to AnimeAV1
+
 Pushes your local truth database to AnimeAV1. Updates entries where the local episode count or status is ahead of the remote server.
+
 ```bash
 npx tsx theone.ts animeav1 sync
 ```
 
 #### Automated Import / Resolve
+
 Iterates through all locally tracked MAL IDs, queries AnimeAV1 for exact matches, and auto-resolves mapping IDs seamlessly.
+
 ```bash
 npx tsx theone.ts animeav1 import
 ```
@@ -80,13 +89,17 @@ npx tsx theone.ts animeav1 import
 ### 🗡️ AnimeFLV Commands
 
 #### Scrape AnimeFLV Watchlist
+
 Plunders your AnimeFLV watchlist and saves it to local storage.
+
 ```bash
 npx tsx theone.ts scrape
 ```
 
 #### Resolve MAL IDs
+
 Maps all previously scraped AnimeFLV titles to their canonical MAL IDs.
+
 ```bash
 npx tsx theone.ts resolve
 ```
@@ -94,13 +107,17 @@ npx tsx theone.ts resolve
 ### 🥷 JKanime Commands
 
 #### Fetch JKanime States
+
 Stealthily fetches your current JKanime states and caches them.
+
 ```bash
 npx tsx theone.ts fetch-jkanime-list
 ```
 
 #### Synchronize Watchlist to JKanime
+
 Pushes your local watchlist states up to your live JKanime account. Use `--autoskip` to let the script run hands-free.
+
 ```bash
 npx tsx theone.ts sync-jkanime --force --autoskip
 ```
@@ -108,13 +125,17 @@ npx tsx theone.ts sync-jkanime --force --autoskip
 ### 📖 MyAnimeList (MAL) Commands
 
 #### Export MAL XML
+
 Forges an importable XML file based on your mapped databases to upload directly to MAL.
+
 ```bash
 npx tsx theone.ts export
 ```
 
 #### Complete Airing Series
+
 Queries the Jikan API to automatically mark any currently "Watching" series that have finished airing as "Completed" on MAL.
+
 ```bash
 npx tsx theone.ts complete-watching
 ```
@@ -122,11 +143,12 @@ npx tsx theone.ts complete-watching
 ### 🧙‍♂️ Utility Commands
 
 #### Interactive Match Review
+
 Interactive CLI wizard to manually assign MAL IDs for ambiguous matches (for when the AI is acting like a foolish Took).
+
 ```bash
 npx tsx theone.ts review
 ```
-
 
 ---
 
@@ -140,7 +162,7 @@ npx tsx theone.ts review
 │   └── import.xml            # Generated MAL XML list import
 ├── src/                      # The Forge: Modular, strongly-typed source code
 │   ├── cli/                  # CLI interaction layer (The Mouth of Sauron)
-│   ├── core/                 # Abstract classes, decorators, domain entities
+│   ├── core/                 # Interfaces, HTTP client, decorators, domain entities
 │   ├── platforms/            # Concrete platform adapters (Strategy Pattern)
 │   ├── repositories/         # Data persistence layer
 │   ├── services/             # Core business logic (Diff Engines, Auto-Importers)
@@ -154,11 +176,13 @@ npx tsx theone.ts review
 ## 🛡️ Training the Troops
 
 Unit tests are written using Node.js's built-in test runner. Test your code, lest you introduce bugs into the realm.
+
 ```bash
 npm test
 ```
 
 ### Development Spells
+
 - `npm run build`: Compiles the strict TypeScript project to `dist/`.
 - `npm run lint`: Runs Biome linter across the repository.
 - `npm run format`: Auto-formats the codebase with Biome.
