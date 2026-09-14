@@ -11,7 +11,7 @@ El principio central de este proyecto es **la sincronización multi-plataforma d
 ### Conceptos Arquitectónicos Clave:
 - **MAL como Ancla Universal**: Los sitios externos (AnimeFLV, JKanime, AnimeAV1, etc.) tienen formatos de título, convenciones de nombres de temporadas e IDs internos que varían. En lugar de intentar $N \times N$ mapeos directos de sitio a sitio, **cada entrada de sitio se mapea a un ID canónico de MyAnimeList**.
 - **Diseño Guiado por el Dominio (DDD)**: La lógica de negocio (Sincronización, Importación) está completamente aislada de la Infraestructura (peticiones HTTP, scraping de HTML) y de la Persistencia (almacenamiento de archivos JSON).
-- **Patrón Estrategia (Strategy)**: Todas las plataformas implementan la clase abstracta `IAnimePlatform`, lo que hace que añadir nuevas plataformas sea trivial sin modificar la lógica de sincronización central.
+- **Patrón Estrategia (Strategy)**: Todas las plataformas implementan la interfaz `IAnimePlatform`, lo que hace que añadir nuevas plataformas sea trivial sin modificar la lógica de sincronización central.
 - **Reconciliación Incremental**: Las acciones de sincronización operan sobre un modelo de diferencias delta (diff), actualizando solo las entradas cuyo progreso de episodios o estado haya cambiado desde la última sincronización.
 
 ---

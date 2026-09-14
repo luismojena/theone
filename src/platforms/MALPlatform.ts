@@ -1,9 +1,11 @@
 import * as cheerio from "cheerio";
 import { type SearchResult, WatchlistEntry, WatchStatus } from "../core/domain.js";
-import { IAnimePlatform } from "../core/IAnimePlatform.js";
+import { HttpClient } from "../core/HttpClient.js";
+import type { IAnimePlatform } from "../core/interfaces.js";
 import { sleep } from "../utils.js";
 
-export class MALPlatform extends IAnimePlatform {
+export class MALPlatform implements IAnimePlatform {
+	public httpClient = new HttpClient();
 	sessionCookie: string | null = null;
 	username: string | null = null;
 
@@ -37,7 +39,7 @@ export class MALPlatform extends IAnimePlatform {
 		while (hasMore) {
 			const url = `https://myanimelist.net/animelist/${encodeURIComponent(this.username)}/load.json?offset=${offset}&status=7`;
 
-			const res = await this.request(url, {
+			const res = await this.httpClient.request(url, {
 				headers: {
 					Accept: "application/json",
 				},
@@ -83,7 +85,7 @@ export class MALPlatform extends IAnimePlatform {
 	async searchAnime(query: string) {
 		const url = `https://myanimelist.net/anime.php?q=${encodeURIComponent(query)}&cat=anime`;
 
-		const res = await this.request(url, {
+		const res = await this.httpClient.request(url, {
 			headers: {
 				Accept: "text/html",
 			},
@@ -110,7 +112,7 @@ export class MALPlatform extends IAnimePlatform {
 	}
 
 	async fetchAnimeDetails(platformId: string): Promise<{ title: string } | null> {
-		const res = await this.request(`https://myanimelist.net/anime/${platformId}`);
+		const res = await this.httpClient.request(`https://myanimelist.net/anime/${platformId}`);
 		const html = await res.text();
 		const $ = cheerio.load(html);
 

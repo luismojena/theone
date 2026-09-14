@@ -1,9 +1,11 @@
 import * as cheerio from "cheerio";
 import { type SearchResult, WatchlistEntry, WatchStatus } from "../core/domain.js";
-import { IAnimePlatform } from "../core/IAnimePlatform.js";
+import { HttpClient } from "../core/HttpClient.js";
+import type { IAnimePlatform } from "../core/interfaces.js";
 import { sleep } from "../utils.js";
 
-export class AnimeFLVPlatform extends IAnimePlatform {
+export class AnimeFLVPlatform implements IAnimePlatform {
+	public httpClient = new HttpClient();
 	profileId: string | null = null;
 
 	get platformName() {
@@ -30,7 +32,7 @@ export class AnimeFLVPlatform extends IAnimePlatform {
 
 			let html = "";
 			try {
-				const res = await this.request(url, {});
+				const res = await this.httpClient.request(url, {});
 				if (!res.ok) break;
 
 				html = await res.text();
@@ -41,27 +43,36 @@ export class AnimeFLVPlatform extends IAnimePlatform {
 				throw err;
 			}
 
-			const $ = cheerio.load(html);
-			const animeElements = $("ul.ListAnimes li");
+			const parsedEntries = this.parseWatchlistPageHtml(html);
+			if (parsedEntries === null) break;
 
-			if (animeElements.length === 0) {
-				break; // No more pages
-			}
-
-			animeElements.each((_i, el) => {
-				const titleLink = $(el).find("h3.Title a");
-				const title = titleLink.text().trim();
-				const href = titleLink.attr("href");
-				const slug = href ? href.replace(/^\/anime\//, "") : "";
-
-				if (slug) {
-					entries.push(new WatchlistEntry(this.platformName, slug, title, WatchStatus.WATCHING, 0));
-				}
-			});
-
+			entries.push(...parsedEntries);
 			await sleep(1000);
 			page++;
 		}
+
+		return entries;
+	}
+
+	public parseWatchlistPageHtml(html: string): WatchlistEntry[] | null {
+		const $ = cheerio.load(html);
+		const animeElements = $("ul.ListAnimes li");
+
+		if (animeElements.length === 0) {
+			return null;
+		}
+
+		const entries: WatchlistEntry[] = [];
+		animeElements.each((_i, el) => {
+			const titleLink = $(el).find("h3.Title a");
+			const title = titleLink.text().trim();
+			const href = titleLink.attr("href");
+			const slug = href ? href.replace(/^\/anime\//, "") : "";
+
+			if (slug) {
+				entries.push(new WatchlistEntry(this.platformName, slug, title, WatchStatus.WATCHING, 0));
+			}
+		});
 
 		return entries;
 	}

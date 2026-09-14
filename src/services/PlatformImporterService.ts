@@ -1,5 +1,5 @@
 import type { MappingEntry } from "../core/domain.js";
-import type { IAnimePlatform } from "../core/IAnimePlatform.js";
+import type { IAnimePlatform } from "../core/interfaces.js";
 import { isError } from "../core/typeGuards.js";
 import type { FileMappingRepository } from "../repositories/FileMappingRepository.js";
 import { cleanBaseTitle } from "../utils.js";
@@ -18,7 +18,16 @@ export class PlatformImporterService {
 		const allMappings = this.repository.loadMappings();
 		const platformName = this.platform.platformName;
 
-		// 1. Extract all unique MAL items
+		const toMap = this.extractUnmappedMalItems(allMappings, platformName);
+		console.log(`Found ${toMap.length} unmapped MAL entries for platform '${platformName}'.`);
+
+		return await this.searchAndMapMissingEntries(toMap, platformName);
+	}
+
+	public extractUnmappedMalItems(
+		allMappings: Record<string, MappingEntry>,
+		platformName: string,
+	): [number | string, { title: string; status: string; episodes: number }][] {
 		const malItems = new Map<
 			number | string,
 			{ title: string; status: string; episodes: number }
@@ -43,13 +52,15 @@ export class PlatformImporterService {
 			}
 		}
 
-		// 2. Find entries that need mapping
-		const toMap = Array.from(malItems.entries()).filter(([malId]) => !mappedToPlatform.has(malId));
+		return Array.from(malItems.entries()).filter(([malId]) => !mappedToPlatform.has(malId));
+	}
+
+	private async searchAndMapMissingEntries(
+		toMap: [number | string, { title: string; status: string; episodes: number }][],
+		platformName: string,
+	): Promise<number> {
 		let mappedCount = 0;
 
-		console.log(`Found ${toMap.length} unmapped MAL entries for platform '${platformName}'.`);
-
-		// 3. Search and map
 		for (const [malId, data] of toMap) {
 			const searchTitle = cleanBaseTitle(data.title);
 			console.log(`\nSearching for: "${searchTitle}" (MAL ID: ${malId})`);
@@ -57,15 +68,14 @@ export class PlatformImporterService {
 			try {
 				const results = await this.platform.searchAnime(searchTitle);
 				if (results.length > 0) {
-					// Auto-pick the first result for this headless importer
 					const bestMatch = results[0];
 					console.log(`✅ Found match: "${bestMatch.title}" (ID: ${bestMatch.platform_id})`);
 
 					this.repository.setMapping(platformName, bestMatch.platform_id, malId, data.title, {
 						title: bestMatch.title,
-						mal_status: data.status, // Copy the known status
-						last_synced_episodes: 0, // 0 means it will be pushed on next sync
-						last_synced_status: "Plan to Watch", // Default dummy state so diff engine detects a change
+						mal_status: data.status,
+						last_synced_episodes: 0,
+						last_synced_status: "Plan to Watch",
 					});
 					mappedCount++;
 				} else {

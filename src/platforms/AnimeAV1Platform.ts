@@ -1,7 +1,9 @@
 import { type SearchResult, WatchlistEntry, WatchStatus } from "../core/domain.js";
-import { IAnimePlatform } from "../core/IAnimePlatform.js";
+import { HttpClient } from "../core/HttpClient.js";
+import type { IAnimePlatform } from "../core/interfaces.js";
 
-export class AnimeAV1Platform extends IAnimePlatform {
+export class AnimeAV1Platform implements IAnimePlatform {
+	public httpClient = new HttpClient();
 	get platformName(): string {
 		return "animeav1";
 	}
@@ -12,18 +14,18 @@ export class AnimeAV1Platform extends IAnimePlatform {
 		}
 
 		// Set the cookie for all future requests using the base class pattern!
-		this.defaultHeaders.Cookie = `session=${credentials.session}`;
-		this.defaultHeaders["User-Agent"] =
+		this.httpClient.defaultHeaders.Cookie = `session=${credentials.session}`;
+		this.httpClient.defaultHeaders["User-Agent"] =
 			"Mozilla/5.0 (X11; Linux x86_64; rv:155.0) Gecko/20100101 Firefox/155.0";
 	}
 
 	async fetchWatchlist(): Promise<WatchlistEntry[]> {
-		if (!this.defaultHeaders.Cookie) throw new Error("Must authenticate first");
+		if (!this.httpClient.defaultHeaders.Cookie) throw new Error("Must authenticate first");
 
 		const entries: WatchlistEntry[] = [];
 		const baseUrl = `https://animeav1.com/cuenta/listas`;
 
-		const res = await this.request(baseUrl);
+		const res = await this.httpClient.request(baseUrl);
 		const html = await res.text();
 
 		// We extract mediaId, status, episode, slug, title
@@ -90,7 +92,7 @@ export class AnimeAV1Platform extends IAnimePlatform {
 	}
 
 	async updateEntryStatus(entry: WatchlistEntry): Promise<void> {
-		if (!this.defaultHeaders.Cookie) throw new Error("Must authenticate first");
+		if (!this.httpClient.defaultHeaders.Cookie) throw new Error("Must authenticate first");
 
 		const url = `https://animeav1.com/api/user/library`;
 
@@ -102,7 +104,7 @@ export class AnimeAV1Platform extends IAnimePlatform {
 			status: this._mapStatusToNumber(entry.status),
 		};
 
-		const res = await this.request(url, {
+		const res = await this.httpClient.request(url, {
 			method: "POST",
 			body: JSON.stringify(payload),
 			headers: {
@@ -140,10 +142,10 @@ export class AnimeAV1Platform extends IAnimePlatform {
 	}
 
 	async searchAnime(query: string): Promise<SearchResult[]> {
-		if (!this.defaultHeaders.Cookie) throw new Error("Must authenticate first");
+		if (!this.httpClient.defaultHeaders.Cookie) throw new Error("Must authenticate first");
 
 		const url = `https://animeav1.com/catalogo?search=${encodeURIComponent(query)}`;
-		const res = await this.request(url);
+		const res = await this.httpClient.request(url);
 		const html = await res.text();
 		const results: SearchResult[] = [];
 
