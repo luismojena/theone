@@ -69,17 +69,28 @@ Automated Live MAL Watchlist Fetching & Export Diff Breakdown Implementation:
 
 ## DDD Architectural Refactoring
 
-- [ ] Define Core Domain Entities (`Anime`, `WatchlistEntry`, standard `WatchStatus` enum)
-- [ ] Define Port Interfaces (`IAnimePlatform`, `MappingRepository`)
-- [ ] Refactor File I/O into a concrete `FileMappingRepository`
-- [ ] Refactor MyAnimeList logic into `MALPlatform` adapter
-- [ ] Refactor JKanime logic into `JKAnimePlatform` adapter
-- [ ] Refactor AnimeFLV logic into `AnimeFLVPlatform` adapter
-- [ ] Implement `WatchlistSyncService` to orchestrate platform-to-platform syncing
-- [ ] Refactor `migrate.js` CLI to initialize dependencies and use the new Services
-- [ ] Verify existing tests pass and update tests for new class structures
+- [x] Define Core Domain Entities (`Anime`, `WatchlistEntry`, standard `WatchStatus` enum)
+- [x] Define Port Interfaces (`IAnimePlatform`, `MappingRepository`)
+- [x] Refactor File I/O into a concrete `FileMappingRepository`
+- [x] Refactor MyAnimeList logic into `MALPlatform` adapter
+- [x] Refactor JKanime logic into `JKAnimePlatform` adapter
+- [x] Refactor AnimeFLV logic into `AnimeFLVPlatform` adapter
+- [x] Implement `WatchlistSyncService` to orchestrate platform-to-platform syncing
+- [x] Refactor `migrate.js` CLI to initialize dependencies and use the new Services
+- [x] Verify existing tests pass and update tests for new class structures
 
 ## New Platform Integrations
 
-- [ ] Implement `AnimeAV1Platform` adapter (login, fetch, sync)
-- [ ] Register AnimeAV1 commands in CLI router
+- [x] Implement `AnimeAV1Platform` adapter (login, fetch, sync)
+- [x] Register AnimeAV1 commands in CLI router
+
+## Phase 2: Composition and Decoupling Refactor
+
+- [x] Split `IAnimePlatform` into granular interfaces (`IAnimeSearcher`, `IAnimeDetailsProvider`, etc.)
+- [x] Extract HTTP logic from platform base class into a reusable `HttpClient` composition class
+- [x] Extract heavy CLI business logic from `malCli.ts` into `MyAnimeListExportService` and `MalResolutionService`
+- [x] Refactor massive functions in `InteractiveReviewService` and `PlatformImporterService`
+- [x] Extract pagination and DOM parsing out of `JKAnimePlatform` and `AnimeFLVPlatform` main loops
+- [x] Sort all imports automatically using Biome (`npx biome check --write`)
+- [x] Cleanup useless fallback objects in spread operators project-wide
+- [x] Add `markdownlint` to lint and enforce format on `.md` files
