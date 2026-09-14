@@ -7,7 +7,8 @@
 	"scripts": {
 		"start": "npx tsx theone.ts",
 		"test": "node --import tsx --test tests/*.ts tests/*/*.ts",
-		"lint": "biome lint .",
+		"lint": "biome lint . && npm run lint:md",
+		"lint:md": "markdownlint \"**/*.md\" --ignore node_modules --ignore site",
 		"format": "biome format --write .",
 		"build": "tsc",
 		"docs:serve": "cp README.md docs/index.md && cp README.es.md docs/index.es.md && docker run --rm -it -p 8000:8000 -v ${PWD}:/docs squidfunk/mkdocs-material:9.5.49",
@@ -23,6 +24,7 @@
 		"@biomejs/biome": "2.5.13",
 		"@types/node": "^26.5.1",
 		"husky": "^9.1.7",
+		"markdownlint-cli": "^0.49.1",
 		"tsx": "^4.23.13",
 		"typescript": "^7.0.2"
 	},
