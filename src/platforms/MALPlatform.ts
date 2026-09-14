@@ -108,4 +108,17 @@ export class MALPlatform extends IAnimePlatform {
 
 		return results;
 	}
+
+	async fetchAnimeDetails(platformId: string): Promise<{ title: string } | null> {
+		const res = await this.request(`https://myanimelist.net/anime/${platformId}`);
+		const html = await res.text();
+		const $ = cheerio.load(html);
+
+		const malTitleScraped =
+			$("h1.title-name strong").text().trim() || $("h1.title-name").text().trim();
+		if (malTitleScraped) {
+			return { title: malTitleScraped };
+		}
+		return null;
+	}
 }

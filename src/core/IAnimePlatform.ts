@@ -37,4 +37,10 @@ export abstract class IAnimePlatform {
 	abstract fetchWatchlist(options?: Record<string, string>): Promise<WatchlistEntry[]>;
 	abstract updateEntryStatus(entry: WatchlistEntry): Promise<void>;
 	abstract searchAnime(query: string): Promise<SearchResult[]>;
+
+	/**
+	 * Fetch detailed information for a specific anime by its platform ID (e.g. HTML scraping).
+	 * Useful for surgical fixes and extracting the most accurate official title.
+	 */
+	abstract fetchAnimeDetails(platformId: string): Promise<{ title: string } | null>;
 }

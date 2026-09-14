@@ -73,4 +73,8 @@ export class AnimeFLVPlatform extends IAnimePlatform {
 	async searchAnime(_query: string): Promise<import("../core/domain.js").SearchResult[]> {
 		throw new Error("Search not implemented for AnimeFLV.");
 	}
+
+	async fetchAnimeDetails(platformId: string): Promise<{ title: string } | null> {
+		throw new Error("Surgical fixing is not yet supported for AnimeFLV.");
+	}
 }

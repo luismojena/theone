@@ -218,4 +218,24 @@ export class JKAnimePlatform extends IAnimePlatform {
 		};
 		return map[malStatusString] || WatchStatus.WATCHING;
 	}
+
+	async fetchAnimeDetails(platformId: string): Promise<{ title: string } | null> {
+		const res = await this.request(`https://jkanime.net/${platformId}/`);
+		const html = await res.text();
+		const $ = cheerio.load(html);
+
+		// Try to find the exact title among the H3 tags (ignoring the search history header)
+		let scrapedTitle = "";
+		$("h3").each((_, el) => {
+			const text = $(el).text().trim();
+			if (text && text !== "Buscado recientemente:" && text !== "Temporadas y relacionados") {
+				if (!scrapedTitle) scrapedTitle = text;
+			}
+		});
+
+		if (scrapedTitle) {
+			return { title: scrapedTitle };
+		}
+		return null;
+	}
 }

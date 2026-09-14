@@ -163,4 +163,8 @@ export class AnimeAV1Platform extends IAnimePlatform {
 
 		return results;
 	}
+
+	async fetchAnimeDetails(platformId: string): Promise<{ title: string } | null> {
+		throw new Error("Surgical fixing is not yet supported for AnimeAV1 (requires slug mapping).");
+	}
 }
