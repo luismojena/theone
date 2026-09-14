@@ -1,5 +1,5 @@
 import * as cheerio from "cheerio";
-import { WatchlistEntry, WatchStatus } from "../core/domain.js";
+import { type SearchResult, WatchlistEntry, WatchStatus } from "../core/domain.js";
 import { IAnimePlatform } from "../core/IAnimePlatform.js";
 import { sleep } from "../utils.js";
 
@@ -66,15 +66,15 @@ export class AnimeFLVPlatform extends IAnimePlatform {
 		return entries;
 	}
 
-	async updateEntryStatus(_entry: import("../core/domain.js").WatchlistEntry) {
+	async updateEntryStatus(_entry: WatchlistEntry) {
 		throw new Error("AnimeFLV does not support automated status updates.");
 	}
 
-	async searchAnime(_query: string): Promise<import("../core/domain.js").SearchResult[]> {
+	async searchAnime(_query: string): Promise<SearchResult[]> {
 		throw new Error("Search not implemented for AnimeFLV.");
 	}
 
-	async fetchAnimeDetails(platformId: string): Promise<{ title: string } | null> {
+	async fetchAnimeDetails(_platformId: string): Promise<{ title: string } | null> {
 		throw new Error("Surgical fixing is not yet supported for AnimeFLV.");
 	}
 }

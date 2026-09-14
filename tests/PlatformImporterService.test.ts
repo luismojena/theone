@@ -17,7 +17,7 @@ class MockTargetPlatform extends IAnimePlatform {
 		return [];
 	}
 	async updateEntryStatus() {}
-	async fetchAnimeDetails(platformId: string): Promise<{ title: string } | null> {
+	async fetchAnimeDetails(_platformId: string): Promise<{ title: string } | null> {
 		return { title: "Mock Details" };
 	}
 

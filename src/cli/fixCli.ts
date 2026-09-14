@@ -1,6 +1,8 @@
-import { PlatformFactory } from "../platforms/PlatformFactory.js";
+import type { MappingEntry } from "../core/domain.js";
 import { MALPlatform } from "../platforms/MALPlatform.js";
+import { PlatformFactory } from "../platforms/PlatformFactory.js";
 import { FileMappingRepository } from "../repositories/FileMappingRepository.js";
+import { InteractiveReviewService, ReviewResult } from "../services/InteractiveReviewService.js";
 
 export async function runFixEntry(platformName: string, platformId: string) {
 	console.log(`--- Surgical Fix: ${platformName} -> ${platformId} ---`);
@@ -59,14 +61,11 @@ export async function runFixEntry(platformName: string, platformId: string) {
 	} else {
 		console.log(`⚠️ No mal_id mapped for this entry. Dropping into interactive MAL review...`);
 
-		const { InteractiveReviewService, ReviewResult } = await import(
-			"../services/InteractiveReviewService.js"
-		);
 		const malPlatform = new MALPlatform();
 		const reviewService = new InteractiveReviewService(repo, malPlatform);
 
 		// Ensure the entry passed to review has the freshly scraped title so it's clean for the prompt
-		const freshEntry = { ...existing, title: newTitle } as import("../core/domain.js").MappingEntry;
+		const freshEntry = { ...existing, title: newTitle } as MappingEntry;
 
 		const result = await reviewService.reviewSingleEntry(freshEntry);
 		if (result === ReviewResult.RESOLVED) {

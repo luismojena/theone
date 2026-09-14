@@ -1,5 +1,5 @@
 import * as cheerio from "cheerio";
-import { WatchlistEntry, WatchStatus } from "../core/domain.js";
+import { type SearchResult, WatchlistEntry, WatchStatus } from "../core/domain.js";
 import { IAnimePlatform } from "../core/IAnimePlatform.js";
 
 export class JKAnimePlatform extends IAnimePlatform {
@@ -149,7 +149,7 @@ export class JKAnimePlatform extends IAnimePlatform {
 		return []; // Fallback stub
 	}
 
-	async updateEntryStatus(entry: import("../core/domain.js").WatchlistEntry) {
+	async updateEntryStatus(entry: WatchlistEntry) {
 		if (!this.cookies) throw new Error("Must authenticate before updating status");
 
 		// Fetch details
@@ -195,7 +195,7 @@ export class JKAnimePlatform extends IAnimePlatform {
 		const res = await this.request(url);
 		const html = await res.text();
 		const $ = cheerio.load(html);
-		const results: import("../core/domain.js").SearchResult[] = [];
+		const results: SearchResult[] = [];
 
 		$(".anime__item").each((_idx, el) => {
 			const a = $(el).find("a").first();

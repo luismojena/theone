@@ -1,3 +1,4 @@
+import type { MappingEntry } from "../core/domain.js";
 import type { IAnimePlatform } from "../core/IAnimePlatform.js";
 import { isError } from "../core/typeGuards.js";
 import type { FileMappingRepository } from "../repositories/FileMappingRepository.js";
@@ -25,7 +26,7 @@ export class PlatformImporterService {
 		const mappedToPlatform = new Set<number | string>();
 
 		for (const key of Object.keys(allMappings)) {
-			const entry = allMappings[key] as import("../core/domain.js").MappingEntry;
+			const entry = allMappings[key] as MappingEntry;
 
 			if (!entry.mal_id) continue;
 

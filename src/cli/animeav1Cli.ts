@@ -1,11 +1,14 @@
-import { WatchlistEntry } from "../core/domain.js";
+import { type MappingEntry, WatchlistEntry } from "../core/domain.js";
 import { isError } from "../core/typeGuards.js";
-import { AnimeAV1Platform } from "../platforms/AnimeAV1Platform.js";
+import { PlatformFactory } from "../platforms/PlatformFactory.js";
 import { FileMappingRepository } from "../repositories/FileMappingRepository.js";
+import { PlatformImporterService } from "../services/PlatformImporterService.js";
+
+const PLATFORM_NAME = "animeav1";
 
 export async function runFetchAnimeAV1List() {
-	console.log("--- Fetch AnimeAV1 Profile Watchlist States ---");
-	const platform = new AnimeAV1Platform();
+	console.log(`--- Fetch ${PLATFORM_NAME} Profile Watchlist States ---`);
+	const platform = PlatformFactory.getPlatform(PLATFORM_NAME);
 
 	const session = process.env.ANIMEAV1_SESSION;
 	if (!session) {
@@ -47,7 +50,7 @@ export async function runFetchAnimeAV1List() {
 
 export async function runSyncAnimeAV1() {
 	console.log("\n--- AnimeAV1 Watchlist Synchronization ---");
-	const platform = new AnimeAV1Platform();
+	const platform = PlatformFactory.getPlatform(PLATFORM_NAME);
 
 	const session = process.env.ANIMEAV1_SESSION;
 	if (!session) {
@@ -67,13 +70,13 @@ export async function runSyncAnimeAV1() {
 
 	console.log("Fetching remote AnimeAV1 watchlist...");
 	const remoteEntries = await platform.fetchWatchlist();
-	const remoteMap = new Map(remoteEntries.map((e) => [e.platformId.toString(), e]));
+	const remoteMap = new Map(remoteEntries.map((e: WatchlistEntry) => [e.platformId.toString(), e]));
 
 	const toUpdate = [];
 
 	for (const key of Object.keys(allMappings)) {
-		const mapping = allMappings[key] as import("../core/domain.js").MappingEntry;
-		if (mapping.platform === "animeav1") {
+		const mapping = allMappings[key] as MappingEntry;
+		if (mapping.platform === platform.platformName) {
 			const remote = remoteMap.get(mapping.platform_id || "");
 
 			// If not on remote, or local status differs from remote (sync logic)
@@ -85,7 +88,7 @@ export async function runSyncAnimeAV1() {
 				// Construct entry to push
 				toUpdate.push(
 					new WatchlistEntry(
-						"animeav1",
+						platform.platformName,
 						mapping.platform_id || "",
 						mapping.title || "",
 						mapping.mal_status || "Plan to Watch",
@@ -122,7 +125,7 @@ export async function runSyncAnimeAV1() {
 
 export async function runImportAnimeAV1() {
 	console.log("\n--- AnimeAV1 Automated Importer ---");
-	const platform = new AnimeAV1Platform();
+	const platform = PlatformFactory.getPlatform(PLATFORM_NAME);
 
 	const session = process.env.ANIMEAV1_SESSION;
 	if (!session) {
@@ -137,7 +140,6 @@ export async function runImportAnimeAV1() {
 		return;
 	}
 
-	const { PlatformImporterService } = await import("../services/PlatformImporterService.js");
 	const repo = new FileMappingRepository("./migrations/mappings.json");
 
 	const importer = new PlatformImporterService(repo, platform);

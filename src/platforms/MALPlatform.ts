@@ -1,5 +1,5 @@
 import * as cheerio from "cheerio";
-import { WatchlistEntry, WatchStatus } from "../core/domain.js";
+import { type SearchResult, WatchlistEntry, WatchStatus } from "../core/domain.js";
 import { IAnimePlatform } from "../core/IAnimePlatform.js";
 import { sleep } from "../utils.js";
 
@@ -91,7 +91,7 @@ export class MALPlatform extends IAnimePlatform {
 
 		const html = await res.text();
 		const $ = cheerio.load(html);
-		const results: import("../core/domain.js").SearchResult[] = [];
+		const results: SearchResult[] = [];
 
 		$("table tr").each((_idx, el) => {
 			const titleLink = $(el).find("a.hoverinfo_trigger.fw-b").first();

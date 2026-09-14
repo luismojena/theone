@@ -1,11 +1,11 @@
 import type { IAnimePlatform } from "../core/IAnimePlatform.js";
-import { JKAnimePlatform } from "./JKAnimePlatform.js";
 import { AnimeAV1Platform } from "./AnimeAV1Platform.js";
 import { AnimeFLVPlatform } from "./AnimeFLVPlatform.js";
+import { JKAnimePlatform } from "./JKAnimePlatform.js";
 import { MALPlatform } from "./MALPlatform.js";
 
-export class PlatformFactory {
-	static getPlatform(platformName: string): IAnimePlatform {
+export const PlatformFactory = {
+	getPlatform(platformName: string): IAnimePlatform {
 		switch (platformName.toLowerCase()) {
 			case "jkanime":
 				return new JKAnimePlatform();
@@ -20,5 +20,5 @@ export class PlatformFactory {
 					`Platform '${platformName}' is not supported or not implemented in the factory.`,
 				);
 		}
-	}
-}
+	},
+};
