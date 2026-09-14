@@ -649,7 +649,7 @@
 <ul>
 <li><strong>MAL como Ancla Universal</strong>: Los sitios externos (AnimeFLV, JKanime, AnimeAV1, etc.) tienen formatos de título, convenciones de nombres de temporadas e IDs internos que varían. En lugar de intentar $N \times N$ mapeos directos de sitio a sitio, <strong>cada entrada de sitio se mapea a un ID canónico de MyAnimeList</strong>.</li>
 <li><strong>Diseño Guiado por el Dominio (DDD)</strong>: La lógica de negocio (Sincronización, Importación) está completamente aislada de la Infraestructura (peticiones HTTP, scraping de HTML) y de la Persistencia (almacenamiento de archivos JSON).</li>
-<li><strong>Patrón Estrategia (Strategy)</strong>: Todas las plataformas implementan la clase abstracta <code>IAnimePlatform</code>, lo que hace que añadir nuevas plataformas sea trivial sin modificar la lógica de sincronización central.</li>
+<li><strong>Patrón Estrategia (Strategy)</strong>: Todas las plataformas implementan la interfaz <code>IAnimePlatform</code>, lo que hace que añadir nuevas plataformas sea trivial sin modificar la lógica de sincronización central.</li>
 <li><strong>Reconciliación Incremental</strong>: Las acciones de sincronización operan sobre un modelo de diferencias delta (diff), actualizando solo las entradas cuyo progreso de episodios o estado haya cambiado desde la última sincronización.</li>
 </ul>
 <hr />
