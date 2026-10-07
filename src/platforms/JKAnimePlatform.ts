@@ -67,10 +67,8 @@ export class JKAnimePlatform implements IAnimePlatform {
 		const tagMap = {
 			"1": { mal_status: "Watching" },
 			"2": { mal_status: "Completed" },
-			"3": { mal_status: "Watching" },
-			"4": { mal_status: "Plan to Watch" },
-			"5": { mal_status: "On-Hold" },
-			"6": { mal_status: "Dropped" },
+			"3": { mal_status: "Plan to Watch" },
+			"5": { mal_status: "Dropped" },
 		};
 
 		for (const [tagId, statusInfo] of Object.entries(tagMap)) {
@@ -166,9 +164,9 @@ export class JKAnimePlatform implements IAnimePlatform {
 
 		let tagId = 2; // Completado
 		if (entry.status === WatchStatus.WATCHING) tagId = 1;
-		else if (entry.status === WatchStatus.ON_HOLD) tagId = 5;
-		else if (entry.status === WatchStatus.DROPPED) tagId = 6;
-		else if (entry.status === WatchStatus.PLAN_TO_WATCH) tagId = 4;
+		else if (entry.status === WatchStatus.PLAN_TO_WATCH) tagId = 3;
+		else if (entry.status === WatchStatus.ON_HOLD) tagId = 3; // JKanime has no On-Hold, fallback to Plan to Watch
+		else if (entry.status === WatchStatus.DROPPED) tagId = 5;
 
 		const payload = new URLSearchParams({
 			ainfo: JSON.stringify({
