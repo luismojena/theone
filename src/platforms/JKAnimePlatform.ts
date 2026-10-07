@@ -114,7 +114,7 @@ export class JKAnimePlatform implements IAnimePlatform {
 				const info =
 					typeof rawItem.info === "string" ? JSON.parse(rawItem.info) : rawItem.info || {};
 				const rawUrl = info.url || rawItem.url || "";
-				const slug = rawUrl.replace(/^https?:\/\/jkanime\.net\//, "").replace(/\//g, "");
+				const slug = rawUrl.replace(/^https?:\/\/jkanime\.(net|bz)\//, "").replace(/\//g, "");
 				if (slug) {
 					let title = info.title || rawItem.title || slug;
 					if (title.length <= 15 && !title.includes(" ")) {
