@@ -105,25 +105,7 @@ test("PlatformImporterService uses IAnimeSearcher (Composition E2E)", async () =
 	// Mock fetch to simulate MAL Search HTML response
 	const originalFetch = global.fetch;
 	global.fetch = async (url: unknown, _options: unknown) => {
-		if (typeof url === "string" && url.includes("/anime.php?q=Naruto")) {
-			return {
-				ok: true,
-				text: async () => `
-				<html>
-					<body>
-						<table>
-							<tr>
-								<td>
-									<a class="hoverinfo_trigger fw-b" href="/anime/999/Naruto_Match">
-										<strong>Naruto Match</strong>
-									</a>
-								</td>
-							</tr>
-						</table>
-					</body>
-				</html>`,
-			} as unknown as Response;
-		}
+		if (typeof url === "string" && url.includes("/search/prefix.json")) { return { ok: true, json: async () => ({ categories: [{ type: "anime", items: [{ id: 999, name: "Naruto Match", url: "https://myanimelist.net/anime/999" }] }] }), text: async () => "" } as unknown as Response; }
 		throw new Error("Unexpected fetch url");
 	};
 

@@ -83,30 +83,29 @@ export class MALPlatform implements IAnimePlatform {
 	}
 
 	async searchAnime(query: string) {
-		const url = `https://myanimelist.net/anime.php?q=${encodeURIComponent(query)}&cat=anime`;
+		const url = `https://myanimelist.net/search/prefix.json?type=anime&keyword=${encodeURIComponent(query)}&v=1`;
 
 		const res = await this.httpClient.request(url, {
 			headers: {
-				Accept: "text/html",
+				Accept: "application/json",
 			},
 		});
 
-		const html = await res.text();
-		const $ = cheerio.load(html);
+		const json = await res.json();
 		const results: SearchResult[] = [];
 
-		$("table tr").each((_idx, el) => {
-			const titleLink = $(el).find("a.hoverinfo_trigger.fw-b").first();
-			if (titleLink.length === 0) return;
-			const title = titleLink.find("strong").text().trim() || titleLink.text().trim();
-			const href = titleLink.attr("href");
-			if (!href) return;
-			const malIdMatch = href.match(/\/anime\/(\d+)/);
-			if (malIdMatch) {
-				const mal_id = parseInt(malIdMatch[1] || "0", 10);
-				results.push({ platform_id: String(mal_id), title, url: href });
+		if (json.categories && json.categories.length > 0) {
+			const animeCategory = json.categories.find((c: any) => c.type === "anime");
+			if (animeCategory && animeCategory.items) {
+				for (const item of animeCategory.items) {
+					results.push({
+						platform_id: String(item.id),
+						title: item.name,
+						url: item.url,
+					});
+				}
 			}
-		});
+		}
 
 		return results;
 	}
